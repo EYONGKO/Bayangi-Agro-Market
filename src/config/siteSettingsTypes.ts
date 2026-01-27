@@ -112,7 +112,7 @@ export const DEFAULT_FEATURES: FeatureItem[] = [
   { id: 'support', iconId: 'headphones', title: '24 X 7 Free Support', subtitle: 'Online Support 24/7', bgColor: theme.colors.primary.main },
   { id: 'guarantee', iconId: 'shield', title: 'Money Back Guarantee', subtitle: '100% Secure Payment', bgColor: theme.colors.primary.light },
   { id: 'shipping', iconId: 'truck', title: 'Free Worldwide Shipping', subtitle: 'On Order Over 25000 FCFA', bgColor: theme.colors.primary.dark },
-  { id: 'gift', iconId: 'gift', title: 'Win 100000 FCFA To Shop', subtitle: 'Give The Perfect Gift', bgColor: theme.colors.primary.background },
+  { id: 'gift', iconId: 'gift', title: 'Win 10000 FCFA To Shop', subtitle: 'Give The Perfect Gift', bgColor: theme.colors.primary.background },
 ];
 
 export const DEFAULT_ANNOUNCEMENT: AnnouncementBarConfig = {

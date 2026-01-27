@@ -32,12 +32,15 @@ const BrowseByInterestPills = ({ title, items, selectedId, onSelect, showMore, o
         <div
           style={{
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             gap: '10px',
-            flexWrap: 'wrap',
+            overflowX: 'auto',
+            overflowY: 'hidden',
             maxWidth: '1200px',
             margin: '0 auto',
-            rowGap: '10px'
+            padding: '0 16px',
+            scrollbarWidth: 'none', // Firefox
+            msOverflowStyle: 'none' // IE/Edge
           }}
         >
           {items.slice(0, showMore ? items.length - 1 : items.length).map((item) => {

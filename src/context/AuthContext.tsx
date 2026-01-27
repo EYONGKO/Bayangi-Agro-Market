@@ -21,29 +21,9 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const USERS_KEY = 'local-roots-auth-users';
 const SESSION_KEY = 'local-roots-auth-session';
 
-type StoredUser = AuthUser & { password: string };
-
 const canUseStorage = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-
-function loadUsers(): StoredUser[] {
-  if (!canUseStorage()) return [];
-  try {
-    const raw = window.localStorage.getItem(USERS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveUsers(users: StoredUser[]) {
-  if (!canUseStorage()) return;
-  window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
 
 function loadSession(): AuthUser | null {
   if (!canUseStorage()) return null;
@@ -66,6 +46,31 @@ function saveSession(user: AuthUser | null) {
   }
 }
 
+// API functions
+async function apiRequest(path: string, init?: RequestInit) {
+  const API_BASE = (import.meta as any).env?.VITE_API_URL ?? '';
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers || {})
+    },
+    ...init
+  });
+
+  if (!res.ok) {
+    let msg = 'Request failed';
+    try {
+      const data = await res.json();
+      msg = data?.error || msg;
+    } catch {
+      // ignore
+    }
+    throw new Error(msg);
+  }
+
+  return (await res.json()) as any;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
@@ -75,49 +80,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = async (input: { name: string; email: string; password: string; role: UserRole }) => {
-    const users = loadUsers();
-    const exists = users.find((u) => u.email.toLowerCase() === input.email.toLowerCase());
-    if (exists) {
-      throw new Error('Email already registered');
+    try {
+      // Call backend API to register user
+      const response = await apiRequest('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: input.name,
+          email: input.email,
+          password: input.password,
+          role: input.role
+        })
+      });
+
+      // Create session user with role from backend
+      const sessionUser: AuthUser = {
+        id: response.user.id,
+        name: response.user.name,
+        email: response.user.email,
+        role: response.user.role || input.role, // Use backend role or fallback
+        verifiedSeller: response.user.role !== 'buyer'
+      };
+
+      // Save session
+      saveSession(sessionUser);
+      setCurrentUser(sessionUser);
+      return sessionUser;
+    } catch (error: any) {
+      throw new Error(error.message || 'Registration failed');
     }
-    const user: StoredUser = {
-      id: `user-${Date.now()}`,
-      name: input.name,
-      email: input.email,
-      password: input.password,
-      role: input.role,
-      verifiedSeller: input.role !== 'buyer'
-    };
-    const next = [user, ...users];
-    saveUsers(next);
-    const session: AuthUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      verifiedSeller: user.verifiedSeller
-    };
-    saveSession(session);
-    setCurrentUser(session);
-    return session;
   };
 
   const signIn = async (input: { email: string; password: string }) => {
-    const users = loadUsers();
-    const found = users.find((u) => u.email.toLowerCase() === input.email.toLowerCase());
-    if (!found || found.password !== input.password) {
-      throw new Error('Invalid credentials');
+    try {
+      // Call backend API to login
+      const response = await apiRequest('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: input.email,
+          password: input.password
+        })
+      });
+
+      // Create session user with role from backend
+      const sessionUser: AuthUser = {
+        id: response.user.id,
+        name: response.user.name,
+        email: response.user.email,
+        role: response.user.role || 'buyer', // Use backend role or fallback
+        verifiedSeller: response.user.role !== 'buyer'
+      };
+
+      // Save session
+      saveSession(sessionUser);
+      setCurrentUser(sessionUser);
+      return sessionUser;
+    } catch (error: any) {
+      throw new Error(error.message || 'Login failed');
     }
-    const session: AuthUser = {
-      id: found.id,
-      name: found.name,
-      email: found.email,
-      role: found.role,
-      verifiedSeller: found.verifiedSeller
-    };
-    saveSession(session);
-    setCurrentUser(session);
-    return session;
   };
 
   const signOut = () => {

@@ -14,13 +14,13 @@ const SliderContainer = styled(Box)({
   overflow: 'hidden',
   background: `linear-gradient(135deg, ${theme.colors.primary.background} 0%, ${theme.colors.primary.light}40% 50%, ${theme.colors.primary.main} 100%)`, // Use theme colors
   '@media (max-width: 768px)': {
-    minHeight: '300px', // Reduced from 360px
+    minHeight: '180px', // Reduced from 220px
   },
   '@media (max-width: 414px)': { // iPhone 6/7/8
-    minHeight: '260px', // Reduced from 320px
+    minHeight: '140px', // Reduced from 180px
   },
   '@media (max-width: 375px)': { // iPhone SE
-    minHeight: '220px', // Reduced from 280px
+    minHeight: '120px', // Reduced from 160px
   },
 });
 
@@ -56,7 +56,7 @@ const SlideWrapper = styled(Box)({
     minHeight: '400px', // Increased from 450px
   },
   '@media (max-width: 768px)': {
-    minHeight: '300px', // Reduced from 360px
+    minHeight: '180px', // Reduced from 220px
     position: 'relative', // Ensure relative positioning for absolute children
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -98,7 +98,7 @@ const ImageArea = styled(Box)({
     order: 0,
   },
   '@media (max-width: 768px)': {
-    minHeight: '300px', // Reduced from 360px
+    minHeight: '180px', // Reduced from 220px
     position: 'relative', // Ensure relative positioning for absolute children
     justifyContent: 'flex-start', // Allow absolute positioning to work
     alignItems: 'flex-start',

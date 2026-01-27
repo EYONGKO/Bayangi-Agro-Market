@@ -41,89 +41,104 @@ export default function AuthPage() {
 
   return (
     <PageLayout showCategoryNav={false}>
-      <div style={{ background: '#f8fafc', minHeight: 'calc(100vh - 160px)', display: 'flex', justifyContent: 'center', padding: '32px 16px' }}>
+      <div style={{ 
+        background: 'linear-gradient(135deg, #f0f7e6 0%, #e8f5e0 100%)', 
+        minHeight: 'calc(100vh - 160px)', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        padding: '32px 16px'
+      }}>
         <div
           style={{
-            width: 'min(720px, 100%)',
+            width: 'min(450px, 100%)',
             background: '#ffffff',
-            borderRadius: '18px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 16px 40px rgba(0,0,0,0.08)',
-            display: 'grid',
-            gridTemplateColumns: '1fr',
+            borderRadius: '20px',
+            border: '1px solid #d4e8d4',
+            boxShadow: '0 20px 60px rgba(45, 80, 22, 0.15)',
             overflow: 'hidden'
           }}
         >
-          <div style={{ padding: '22px 22px 10px' }}>
-            <div style={{ fontSize: '24px', fontWeight: 950, color: '#0f172a', letterSpacing: '-0.02em' }}>
-              Welcome back
-            </div>
-            <div style={{ marginTop: '6px', fontSize: '13px', color: '#64748b', fontWeight: 600 }}>
-              Sign in to continue, or create an account to start buying and selling.
-            </div>
-
-            <div
-              style={{
-                marginTop: '14px',
-                display: 'flex',
-                gap: '8px',
-                background: '#f1f5f9',
-                border: '1px solid #e2e8f0',
-                borderRadius: '14px',
-                padding: '6px'
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setMode('signin')}
+          {/* Logo */}
+          <div style={{ 
+            padding: '32px 32px 16px',
+            textAlign: 'center',
+            borderBottom: '1px solid #f0f7e6'
+          }}>
+            <div style={{
+              width: '100px',
+              height: '100px',
+              margin: '0 auto 16px',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: '0 8px 24px rgba(45, 80, 22, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'white'
+            }}>
+              <img 
+                src="/Bayangi agro marke logot.png" 
+                alt="Bayangi Agro Market Logo"
                 style={{
-                  flex: 1,
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  fontWeight: 900,
-                  background: mode === 'signin' ? '#ffffff' : 'transparent',
-                  color: mode === 'signin' ? '#0f172a' : '#475569',
-                  boxShadow: mode === 'signin' ? '0 8px 20px rgba(2,6,23,0.08)' : 'none'
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
                 }}
-              >
-                Sign in
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode('register')}
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  fontWeight: 900,
-                  background: mode === 'register' ? '#ffffff' : 'transparent',
-                  color: mode === 'register' ? '#0f172a' : '#475569',
-                  boxShadow: mode === 'register' ? '0 8px 20px rgba(2,6,23,0.08)' : 'none'
-                }}
-              >
-                Register
-              </button>
+              />
             </div>
           </div>
 
-          <div style={{ padding: '0 22px 22px' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Header */}
+          <div style={{ 
+            padding: '24px 32px 24px',
+            textAlign: 'center',
+            borderBottom: '1px solid #f0f7e6'
+          }}>
+            <div style={{ 
+              fontSize: '28px', 
+              fontWeight: 700, 
+              color: '#2d5016', 
+              marginBottom: '8px',
+              letterSpacing: '-0.02em'
+            }}>
+              {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
+            </div>
+            <div style={{ 
+              fontSize: '14px', 
+              color: '#6b7280', 
+              lineHeight: 1.5
+            }}>
+              {mode === 'signin' 
+                ? 'Sign in to your account to continue' 
+                : 'Join our agricultural marketplace today'
+              }
+            </div>
+          </div>
+
+          {/* Form */}
+          <div style={{ padding: '32px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {mode === 'register' && (
                 <div>
-                  <label style={{ display: 'block', fontWeight: 700, fontSize: '13px', color: '#111827', marginBottom: '6px' }}>Name</label>
+                  <label style={{ 
+                    display: 'block', 
+                    fontWeight: 600, 
+                    fontSize: '14px', 
+                    color: '#374151', 
+                    marginBottom: '8px' 
+                  }}>
+                    Full Name
+                  </label>
                   <div style={inputWrapStyle}>
                     <span style={inputIconStyle}>
-                      <User2 size={16} />
+                      <User2 size={18} />
                     </span>
                     <input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      placeholder="Your name"
+                      placeholder="Enter your full name"
                       style={inputStyle}
                     />
                   </div>
@@ -131,113 +146,168 @@ export default function AuthPage() {
               )}
 
               <div>
-                <label style={{ display: 'block', fontWeight: 700, fontSize: '13px', color: '#111827', marginBottom: '6px' }}>Email address</label>
+                <label style={{ 
+                  display: 'block', 
+                  fontWeight: 600, 
+                  fontSize: '14px', 
+                  color: '#374151', 
+                  marginBottom: '8px' 
+                }}>
+                  Email Address
+                </label>
                 <div style={inputWrapStyle}>
                   <span style={inputIconStyle}>
-                    <Mail size={16} />
+                    <Mail size={18} />
                   </span>
                   <input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="Enter your email"
                     style={inputStyle}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 700, fontSize: '13px', color: '#111827', marginBottom: '6px' }}>Password</label>
+                <label style={{ 
+                  display: 'block', 
+                  fontWeight: 600, 
+                  fontSize: '14px', 
+                  color: '#374151', 
+                  marginBottom: '8px' 
+                }}>
+                  Password
+                </label>
                 <div style={inputWrapStyle}>
                   <span style={inputIconStyle}>
-                    <Lock size={16} />
+                    <Lock size={18} />
                   </span>
                   <input
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     style={inputStyle}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                     style={{
                       position: 'absolute',
-                      right: '10px',
+                      right: '12px',
                       top: '50%',
                       transform: 'translateY(-50%)',
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '10px',
-                      border: '1px solid #e2e8f0',
-                      background: '#fff',
+                      background: 'none',
+                      border: 'none',
+                      color: '#6b7280',
+                      cursor: 'pointer',
+                      fontSize: '18px',
+                      padding: '4px',
+                      borderRadius: '4px',
+                      transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      color: '#0f172a'
+                      justifyContent: 'center'
                     }}
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword ? '👁️' : '👁️‍🗨️'}
                   </button>
                 </div>
               </div>
 
               {mode === 'register' && (
                 <div>
-                  <label style={{ display: 'block', fontWeight: 700, fontSize: '13px', color: '#111827', marginBottom: '6px' }}>I am a</label>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <label style={{ 
+                    display: 'block', 
+                    fontWeight: 600, 
+                    fontSize: '14px', 
+                    color: '#374151', 
+                    marginBottom: '8px' 
+                  }}>
+                    I want to
+                  </label>
+                  <div style={{ display: 'flex', gap: '12px' }}>
                     {(['buyer', 'seller', 'both'] as const).map((r) => (
                       <button
                         key={r}
                         type="button"
                         onClick={() => setRole(r)}
                         style={{
-                          padding: '10px 12px',
+                          flex: 1,
+                          padding: '12px 16px',
                           borderRadius: '12px',
-                          border: role === r ? '2px solid #111827' : '1px solid #e5e7eb',
-                          background: role === r ? '#111827' : '#fff',
-                          color: role === r ? '#fff' : '#111827',
-                          fontWeight: 800,
-                          cursor: 'pointer'
+                          border: role === r ? '2px solid #2d5016' : '1px solid #e5e7eb',
+                          background: role === r ? '#2d5016' : '#ffffff',
+                          color: role === r ? '#ffffff' : '#374151',
+                          fontWeight: 600,
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
                         }}
                       >
-                        {r === 'both' ? 'Buyer & Seller' : r === 'seller' ? 'Seller' : 'Buyer'}
+                        {r === 'both' ? 'Both' : r === 'seller' ? 'Sell' : 'Buy'}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-                <input
-                  id="stay-signed"
-                  type="checkbox"
-                  checked={staySigned}
-                  onChange={(e) => setStaySigned(e.target.checked)}
-                  style={{ width: '18px', height: '18px' }}
-                />
-                <label htmlFor="stay-signed" style={{ fontSize: '13px', color: '#111827' }}>
-                  Stay signed in
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  position: 'relative',
+                  width: '18px',
+                  height: '18px'
+                }}>
+                  <input
+                    id="stay-signed"
+                    type="checkbox"
+                    checked={staySigned}
+                    onChange={(e) => setStaySigned(e.target.checked)}
+                    style={{
+                      position: 'absolute',
+                      opacity: 0,
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      zIndex: 2
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '18px',
+                    height: '18px',
+                    border: staySigned ? '2px solid #2d5016' : '2px solid #d1d5db',
+                    borderRadius: '4px',
+                    backgroundColor: staySigned ? '#2d5016' : '#ffffff',
+                    cursor: 'pointer',
+                    zIndex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: staySigned ? '#ffffff' : 'transparent'
+                  }}>
+                    {staySigned ? '✓' : ''}
+                  </div>
+                </div>
+                <label htmlFor="stay-signed" style={{ 
+                  fontSize: '14px', 
+                  color: '#374151',
+                  cursor: 'pointer'
+                }}>
+                  Keep me signed in
                 </label>
               </div>
 
               {error && (
-                <div
-                  style={{
-                    borderRadius: '14px',
-                    border: '1px solid #fecaca',
-                    background: '#fef2f2',
-                    color: '#991b1b',
-                    fontWeight: 800,
-                    fontSize: '13px',
-                    padding: '10px 12px'
-                  }}
-                >
+                <div style={errorStyle}>
                   {error}
                 </div>
               )}
@@ -246,35 +316,73 @@ export default function AuthPage() {
                 type="submit"
                 disabled={loading}
                 style={{
-                  marginTop: '4px',
-                  background: loading ? '#334155' : '#111827',
-                  color: '#fff',
+                  background: loading ? '#9ca3af' : '#2d5016',
+                  color: '#ffffff',
                   border: 'none',
                   borderRadius: '12px',
-                  padding: '14px',
-                  fontWeight: 800,
-                  fontSize: '15px',
+                  padding: '16px',
+                  fontWeight: 600,
+                  fontSize: '16px',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  opacity: loading ? 0.9 : 1
+                  transition: 'all 0.2s ease',
+                  boxShadow: loading ? 'none' : '0 4px 12px rgba(45, 80, 22, 0.3)'
                 }}
               >
-                {loading ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Register'}
+                {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
               </button>
 
               {mode === 'signin' && (
-                <div style={{ textAlign: 'center', marginTop: '6px' }}>
-                  <a href="#" style={{ fontSize: '13px', color: '#111827', textDecoration: 'none' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <a 
+                    href="#" 
+                    style={{ 
+                      fontSize: '14px', 
+                      color: '#2d5016', 
+                      textDecoration: 'none',
+                      fontWeight: 500
+                    }}
+                  >
                     Forgot your password?
                   </a>
                 </div>
               )}
-
-              <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '12px', color: '#6b7280' }}>OR</div>
-
-              <SocialButton label="Continue with Google" />
-              <SocialButton label="Continue with Facebook" />
-              <SocialButton label="Continue with Apple" />
             </form>
+
+            {/* Toggle Mode */}
+            <div style={{ 
+              textAlign: 'center', 
+              marginTop: '32px',
+              paddingTop: '24px',
+              borderTop: '1px solid #f0f7e6'
+            }}>
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#6b7280',
+                marginBottom: '16px'
+              }}>
+                {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === 'signin' ? 'register' : 'signin');
+                  setError(null);
+                }}
+                style={{
+                  background: 'transparent',
+                  color: '#2d5016',
+                  border: '2px solid #2d5016',
+                  borderRadius: '12px',
+                  padding: '12px 24px',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {mode === 'signin' ? 'Create Account' : 'Sign In'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -284,13 +392,15 @@ export default function AuthPage() {
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  padding: '12px 46px 12px 40px',
+  padding: '14px 50px 14px 48px',
   borderRadius: '12px',
-  border: '1px solid #e2e8f0',
-  fontSize: '14px',
+  border: '1px solid #e5e7eb',
+  fontSize: '15px',
   outline: 'none',
-  background: '#f8fafc',
-  color: '#0f172a'
+  background: '#ffffff',
+  color: '#374151',
+  transition: 'all 0.2s ease',
+  boxSizing: 'border-box'
 };
 
 const inputWrapStyle: React.CSSProperties = {
@@ -302,34 +412,48 @@ const inputWrapStyle: React.CSSProperties = {
 
 const inputIconStyle: React.CSSProperties = {
   position: 'absolute',
-  left: '12px',
+  left: '16px',
   top: '50%',
   transform: 'translateY(-50%)',
-  color: '#64748b',
+  color: '#9ca3af',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
   pointerEvents: 'none',
 };
 
-function SocialButton({ label }: { label: string }) {
-  return (
-    <button
-      type="button"
-      style={{
-        width: '100%',
-        borderRadius: '12px',
-        border: '1px solid #e5e7eb',
-        background: '#fff',
-        color: '#111827',
-        padding: '12px',
-        fontWeight: 800,
-        cursor: 'pointer'
-      }}
-      onClick={() => alert('Social login is a placeholder in this demo.')}
-    >
-      {label}
-    </button>
-  );
-}
+const passwordToggleStyle: React.CSSProperties = {
+  position: 'absolute',
+  right: '12px',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: '36px',
+  height: '36px',
+  borderRadius: '8px',
+  border: '2px solid #e5e7eb',
+  background: '#f8fafc',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  color: '#1f2937',
+  transition: 'all 0.2s ease',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  '&:hover': {
+    background: '#e5e7eb',
+    borderColor: '#d1d5db',
+    color: '#111827',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+  }
+};
 
+const errorStyle: React.CSSProperties = {
+  borderRadius: '12px',
+  border: '1px solid #fecaca',
+  background: '#fef2f2',
+  color: '#991b1b',
+  fontWeight: 500,
+  fontSize: '14px',
+  padding: '12px 16px',
+  lineHeight: 1.5
+};

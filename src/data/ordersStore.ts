@@ -18,50 +18,17 @@ export type Order = {
 
 const ORDERS_KEY = 'local-roots-orders-v1';
 
-const defaultOrders: Order[] = [
-  {
-    id: 'ORD-1001',
-    buyerName: 'Jane Doe',
-    buyerEmail: 'jane@example.com',
-    sellerId: 'local-artisan',
-    total: 15000,
-    status: 'processing',
-    items: [{ productId: 1, name: 'Traditional Basket', price: 15000, quantity: 1 }],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'ORD-1002',
-    buyerName: 'John Smith',
-    buyerEmail: 'john@example.com',
-    sellerId: 'master-craftsman',
-    total: 25000,
-    status: 'delivered',
-    items: [{ productId: 3, name: 'Wooden Carving', price: 25000, quantity: 1 }],
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
-  },
-  {
-    id: 'ORD-1003',
-    buyerName: 'Sarah Lee',
-    buyerEmail: 'sarah@example.com',
-    sellerId: 'pottery-studio',
-    total: 18000,
-    status: 'shipped',
-    items: [{ productId: 104, name: 'Ceramic Pottery', price: 18000, quantity: 1 }],
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString()
-  }
-];
-
 const canUseStorage = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
 function load(): Order[] {
-  if (!canUseStorage()) return defaultOrders;
+  if (!canUseStorage()) return [];
   try {
     const raw = window.localStorage.getItem(ORDERS_KEY);
-    if (!raw) return defaultOrders;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : defaultOrders;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return defaultOrders;
+    return [];
   }
 }
 

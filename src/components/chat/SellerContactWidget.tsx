@@ -17,7 +17,6 @@ function normalizeE164(input?: string) {
   if (!input) return '';
   const trimmed = input.trim();
   if (trimmed.startsWith('+')) return trimmed;
-  // if digits only, assume Cameroon +237
   const digits = trimmed.replace(/[^\d]/g, '');
   if (!digits) return '';
   return digits.startsWith('237') ? `+${digits}` : `+237${digits}`;
@@ -48,112 +47,93 @@ export default function SellerContactWidget({
 
   const ui = (
     <>
-      <div
-        style={{
-          position: 'fixed',
-          right: '18px',
-          bottom: '18px',
-          zIndex: 99999
-        }}
-      >
-        <div
-          style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '20px',
-            background: '#ffffff',
-            border: '1px solid rgba(17,24,39,0.12)',
-            boxShadow: '0 14px 36px rgba(0,0,0,0.18)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
+      {/* Floating Chat Button */}
+      <div className="fixed right-4 bottom-4 z-50">
+        <button
           onClick={() => setOpen(true)}
-          aria-label="Open chat"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') setOpen(true);
+          className="w-16 h-16 rounded-2xl bg-white shadow-2xl border border-gray-200 flex items-center justify-center hover:scale-110 transition-all duration-300 group"
+          style={{ 
+            boxShadow: '0 14px 36px rgba(0,0,0,0.18)',
+            borderColor: theme.colors.neutral[200]
           }}
+          aria-label="Open chat"
         >
-          <MessageCircle size={24} color={theme.colors.primary.main} />
-        </div>
+          <div className="relative">
+            <MessageCircle 
+              size={28} 
+              style={{ color: theme.colors.primary.main }}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+          </div>
+        </button>
       </div>
 
-      {/* Compact actions bar when open */}
+      {/* Expanded Actions Panel */}
       {open && (
-        <div
-          style={{
-            position: 'fixed',
-            right: '18px',
-            bottom: '92px',
-            zIndex: 99999,
-            display: 'flex',
-            gap: '10px'
-          }}
-        >
-          {waLink && (
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                textDecoration: 'none',
-                background: '#25D366',
-                color: '#ffffff',
-                padding: '10px 12px',
-                borderRadius: '14px',
-                fontWeight: 900,
-                fontSize: '12px',
-                boxShadow: '0 10px 24px rgba(0,0,0,0.18)'
-              }}
-            >
-              WhatsApp
-            </a>
-          )}
-          {phone && (
-            <a
-              href={`tel:${phone}`}
-              style={{
-                textDecoration: 'none',
-                background: '#111827',
-                color: '#ffffff',
-                padding: '10px 12px',
-                borderRadius: '14px',
-                fontWeight: 900,
-                fontSize: '12px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 10px 24px rgba(0,0,0,0.18)'
-              }}
-            >
-              <Phone size={16} />
-              Call
-            </a>
-          )}
-          <button
-            onClick={() => setOpen(false)}
-            style={{
-              background: '#ffffff',
-              border: '1px solid rgba(17,24,39,0.12)',
-              color: '#111827',
-              padding: '10px 12px',
-              borderRadius: '14px',
-              fontWeight: 900,
-              fontSize: '12px',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: '0 10px 24px rgba(0,0,0,0.18)'
-            }}
-            aria-label="Close actions"
-          >
-            <X size={16} />
-            Close
-          </button>
+        <div className="fixed right-4 bottom-24 z-50 space-y-3">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 min-w-[200px]"
+               style={{ 
+                 boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+                 borderColor: theme.colors.neutral[200]
+               }}>
+            {/* Seller Info */}
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100"
+                 style={{ borderColor: theme.colors.neutral[100] }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
+                   style={{ 
+                     background: `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)`
+                   }}>
+                {resolvedSellerName.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm truncate" style={{ color: theme.colors.neutral[900] }}>
+                  {resolvedSellerName}
+                </div>
+                <div className="text-xs truncate" style={{ color: theme.colors.neutral[600] }}>
+                  {product.name}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-2">
+              {waLink && (
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-4 py-3 bg-green-500 text-white rounded-xl font-semibold text-sm hover:bg-green-600 transition-colors shadow-md"
+                  style={{ backgroundColor: '#25D366' }}
+                >
+                  <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                    <MessageCircle size={12} color="#25D366" />
+                  </div>
+                  WhatsApp
+                </a>
+              )}
+              
+              {phone && (
+                <a
+                  href={`tel:${phone}`}
+                  className="flex items-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors shadow-md"
+                  style={{ backgroundColor: theme.colors.neutral[900] }}
+                >
+                  <Phone size={16} />
+                  Call Seller
+                </a>
+              )}
+              
+              <button
+                onClick={() => setOpen(false)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-200 transition-colors"
+                style={{ backgroundColor: theme.colors.neutral[100], color: theme.colors.neutral[700] }}
+              >
+                <X size={16} />
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

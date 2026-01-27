@@ -10,8 +10,7 @@ const AnnouncementWrapper = styled(Box)({
   fontWeight: 600,
   padding: '8px 0',
   '@media (max-width: 768px)': {
-    fontSize: '11px',
-    padding: '6px 0',
+    display: 'none',
   },
 });
 

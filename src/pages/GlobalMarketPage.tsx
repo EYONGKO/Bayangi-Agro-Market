@@ -15,7 +15,7 @@ const GlobalMarketPage = () => {
   const { toggleWishlist, isWishlisted } = useWishlist();
   const [searchParams] = useSearchParams();
 
-  const [searchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedInterestId, setSelectedInterestId] = useState<string>('all');
 
   // Get category from URL parameter
@@ -54,71 +54,40 @@ const GlobalMarketPage = () => {
   }, [selectedInterestId]);
 
   const filteredProducts = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    const categories = selectedInterest?.categories ?? null;
+    let filtered = allProducts;
 
-    // Create a mapping of slugs to category names for better matching
-    const slugToNameMap: Record<string, string> = {
-      'agriculture': 'Agriculture',
-      'community-success': 'Community Success',
-      'platform-updates': 'Platform Updates',
-      'marketplace': 'Marketplace',
-      'resources': 'Resources',
-      'art': 'Art',
-      'crafts': 'Crafts',
-      'food': 'Food',
-      'textiles': 'Textiles',
-      'electronics': 'Electronics',
-      'health-wellness': 'Health & Wellness',
-      'education': 'Education',
-      'technology': 'Technology',
-      'fashion': 'Fashion',
-      'home-garden': 'Home & Garden',
-      'sports-fitness': 'Sports & Fitness',
-      'beauty-personal-care': 'Beauty & Personal Care',
-      'toys-games': 'Toys & Games',
-      'books-media': 'Books & Media',
-      'automotive': 'Automotive',
-      'business-services': 'Business & Services',
-      'entertainment': 'Entertainment',
-      'travel-tourism': 'Travel & Tourism',
-      'pet-supplies': 'Pet Supplies',
-      'office-supplies': 'Office Supplies',
-      'industrial': 'Industrial',
-    };
+    // Filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-    // Get the expected category name from the URL slug
-    const expectedCategoryName = urlCategory ? slugToNameMap[urlCategory] : null;
+    // Filter by selected interest
+    if (selectedInterestId !== 'all') {
+      const interest = GIFT_MODE_INTERESTS.find((i) => i.id === selectedInterestId);
+      if (interest) {
+        filtered = filtered.filter((product) => 
+          interest.categories.includes(product.category)
+        );
+      }
+    }
 
-    return allProducts.filter((product) => {
-      const matchesSearch =
-        q === '' ||
-        product.name.toLowerCase().includes(q) ||
-        product.description.toLowerCase().includes(q);
-
-      // Check if URL category matches product category (using name mapping)
-      const matchesUrlCategory = !urlCategory || 
-        !expectedCategoryName || 
-        product.category === expectedCategoryName ||
-        product.category.toLowerCase() === urlCategory.replace('-', ' ');
-      
-      // Check if selected interest matches product category
-      const matchesInterest = !categories || categories.includes(product.category);
-
-      return matchesSearch && matchesUrlCategory && matchesInterest;
-    });
-  }, [allProducts, searchQuery, selectedInterest, urlCategory]);
+    return filtered;
+  }, [allProducts, searchQuery, selectedInterestId]);
 
   const latestProducts = useMemo(() => {
-    return allProducts.slice(0, 12);
-  }, [allProducts]);
+    return filteredProducts.slice(0, 12);
+  }, [filteredProducts]);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
   };
 
   const pillItems = useMemo(() => {
-    return [{ id: 'all', label: 'All' }, ...GIFT_MODE_INTERESTS.map((i) => ({ id: i.id, label: i.label }))];
+    return GIFT_MODE_INTERESTS.map((i) => ({ id: i.id, label: i.label }));
   }, []);
 
   const sectionInterests = useMemo(() => {
@@ -126,32 +95,40 @@ const GlobalMarketPage = () => {
       const interest = GIFT_MODE_INTERESTS.find((i) => i.id === selectedInterestId);
       return interest ? [interest] : [];
     }
-    return GIFT_MODE_INTERESTS.slice(0, 8);
+    // Exclude 'all' from the sections and show first 8 actual categories
+    return GIFT_MODE_INTERESTS.filter(i => i.id !== 'all').slice(0, 8);
   }, [selectedInterestId]);
 
   // Generate curator names and subtitles based on interests
   const getCuratorInfo = (interestId: string) => {
     const curatorMap: Record<string, { name: string; subtitle: string }> = {
-      reading: { name: 'The Bookworm', subtitle: 'Custom Book Art' },
-      'pop-culture': { name: 'The Theater Kid', subtitle: 'Shakespeare Gifts' },
-      music: { name: 'The Music Lover', subtitle: 'Musical Gifts' },
-      'health-fitness': { name: 'The Fitness Enthusiast', subtitle: 'Health & Wellness' },
-      hosting: { name: 'The Host', subtitle: 'Entertaining Essentials' },
-      pets: { name: 'The Pet Parent', subtitle: 'Pet Lover Gifts' },
-      science: { name: 'The Scientist', subtitle: 'Science & Discovery' },
-      plants: { name: 'The Gardener', subtitle: 'Plant Lover Gifts' },
-      tech: { name: 'The Tech Enthusiast', subtitle: 'Tech & Gadgets' },
-      'beer-wine': { name: 'The Connoisseur', subtitle: 'Beverage Gifts' },
-      crafting: { name: 'The Crafter', subtitle: 'DIY & Handmade' },
-      collectibles: { name: 'The Collector', subtitle: 'Unique Collectibles' },
-      art: { name: 'The Art Lover', subtitle: 'Artistic Gifts' },
-      'useful-gifts': { name: 'The Practical One', subtitle: 'Useful & Functional' },
-      fashion: { name: 'The Fashionista', subtitle: 'Style & Accessories' },
-      astrology: { name: 'The Stargazer', subtitle: 'Astrology Gifts' },
-      cooking: { name: 'The Chef', subtitle: 'Culinary Gifts' },
-      humor: { name: 'The Comedian', subtitle: 'Funny & Quirky' },
-      jewelry: { name: 'The Jewelry Lover', subtitle: 'Handcrafted Jewelry' },
-      romance: { name: 'The Romantic', subtitle: 'Romantic Gifts' },
+      all: { name: 'All Products', subtitle: 'Browse All Categories' },
+      agriculture: { name: 'Farmer\'s Choice', subtitle: 'Agricultural Products' },
+      'community-success': { name: 'Community Builder', subtitle: 'Success Stories' },
+      'platform-updates': { name: 'Platform News', subtitle: 'Latest Updates' },
+      marketplace: { name: 'Market Trader', subtitle: 'Marketplace Items' },
+      resources: { name: 'Resource Hub', subtitle: 'Helpful Resources' },
+      art: { name: 'Art Lover', subtitle: 'Artistic Creations' },
+      crafts: { name: 'Craft Master', subtitle: 'Handmade Crafts' },
+      food: { name: 'Foodie', subtitle: 'Delicious Food Items' },
+      textiles: { name: 'Textile Expert', subtitle: 'Fabric & Textiles' },
+      electronics: { name: 'Tech Guru', subtitle: 'Electronic Devices' },
+      'health-wellness': { name: 'Wellness Coach', subtitle: 'Health Products' },
+      education: { name: 'Educator', subtitle: 'Learning Materials' },
+      technology: { name: 'Tech Innovator', subtitle: 'Tech Solutions' },
+      fashion: { name: 'Fashionista', subtitle: 'Fashion & Style' },
+      'home-garden': { name: 'Home Designer', subtitle: 'Home & Garden' },
+      'sports-fitness': { name: 'Athlete', subtitle: 'Sports & Fitness' },
+      'beauty-personal-care': { name: 'Beauty Expert', subtitle: 'Beauty & Care' },
+      'toys-games': { name: 'Game Master', subtitle: 'Toys & Games' },
+      'books-media': { name: 'Bookworm', subtitle: 'Books & Media' },
+      automotive: { name: 'Car Expert', subtitle: 'Automotive' },
+      'business-services': { name: 'Business Pro', subtitle: 'Business Services' },
+      entertainment: { name: 'Entertainer', subtitle: 'Entertainment' },
+      'travel-tourism': { name: 'Travel Guide', subtitle: 'Travel & Tourism' },
+      'pet-supplies': { name: 'Pet Lover', subtitle: 'Pet Supplies' },
+      'office-supplies': { name: 'Office Manager', subtitle: 'Office Supplies' },
+      industrial: { name: 'Industrial Pro', subtitle: 'Industrial Products' },
     };
 
     return curatorMap[interestId] || { name: 'Local Roots', subtitle: 'Curated Collection' };
@@ -168,9 +145,63 @@ const GlobalMarketPage = () => {
           showMore={false}
         />
 
+        {/* Search Bar */}
+        <div style={{ 
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '20px',
+          padding: '0 20px'
+        }}>
+          <input 
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '12px 40px 12px 40px',
+              border: `1px solid ${theme.colors.neutral[200]}`,
+              borderRadius: '25px',
+              fontSize: '14px',
+              width: '100%',
+              maxWidth: '400px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              background: theme.colors.ui.white,
+              color: theme.colors.neutral[700]
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = theme.colors.primary.main;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = theme.colors.neutral[200];
+            }}
+          />
+          <svg 
+            style={{
+              position: 'absolute',
+              left: '20px',
+              pointerEvents: 'none'
+            }}
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="#999999" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+        </div>
+
         <div style={{ background: theme.colors.ui.white, paddingBottom: '80px' }}>
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-            {latestProducts.length > 0 && (
+            {/* Only show Latest Products when "All" is selected */}
+            {selectedInterestId === 'all' && latestProducts.length > 0 && (
               <ProductCarouselSection
                 key="latest"
                 curatorName="All Communities"
@@ -185,30 +216,37 @@ const GlobalMarketPage = () => {
               />
             )}
 
-            {sectionInterests.map((interest) => {
-              const products = filteredProducts
-                .filter((p) => interest.categories.includes(p.category))
-                .slice(0, 12);
+            {(() => {
+              const usedProductIds = new Set<number>();
+              
+              return sectionInterests.map((interest) => {
+                const products = filteredProducts
+                  .filter((p) => !usedProductIds.has(p.id)) // Only show products not already used
+                  .slice(0, 12);
 
-              if (products.length === 0) return null;
+                // Mark these products as used so they don't appear in other sections
+                products.forEach(p => usedProductIds.add(p.id));
 
-              const curatorInfo = getCuratorInfo(interest.id);
+                if (products.length === 0) return null;
 
-              return (
-                <ProductCarouselSection
-                  key={interest.id}
-                  curatorName={curatorInfo.name}
-                  curatorLabel="Curated by"
-                  title={curatorInfo.name}
-                  subtitle={curatorInfo.subtitle}
-                  products={products}
-                  onBrowseAll={() => setSelectedInterestId(interest.id)}
-                  isWishlisted={isWishlisted}
-                  onToggleWishlist={(productId) => toggleWishlist(productId)}
-                  onAddToCart={(product) => handleAddToCart(product)}
-                />
-              );
-            })}
+                const curatorInfo = getCuratorInfo(interest.id);
+
+                return (
+                  <ProductCarouselSection
+                    key={interest.id}
+                    curatorName={curatorInfo.name}
+                    curatorLabel="Curated by"
+                    title={curatorInfo.name}
+                    subtitle={curatorInfo.subtitle}
+                    products={products}
+                    onBrowseAll={() => setSelectedInterestId(interest.id)}
+                    isWishlisted={isWishlisted}
+                    onToggleWishlist={(productId) => toggleWishlist(productId)}
+                    onAddToCart={(product) => handleAddToCart(product)}
+                  />
+                );
+              });
+            })()}
 
             {selectedInterestId !== 'all' && sectionInterests.length === 0 && (
               <div style={{ padding: '60px 20px', textAlign: 'center' }}>

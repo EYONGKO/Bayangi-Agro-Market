@@ -58,9 +58,47 @@ function mapProduct(r: ProductRecord): Product {
   };
 }
 
+let productsCache: Product[] | null = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export async function fetchAllProducts(): Promise<Product[]> {
+  const now = Date.now();
+  
+  // Return cached data if still valid
+  if (productsCache && (now - cacheTimestamp) < CACHE_DURATION) {
+    return productsCache;
+  }
+
   const res = await fetch(`${API_BASE}/api/products`);
   if (!res.ok) throw new Error('Failed to fetch products');
   const data = (await res.json()) as ProductRecord[];
-  return data.map(mapProduct);
+  
+  productsCache = data.map(mapProduct);
+  cacheTimestamp = now;
+  
+  return productsCache;
+}
+
+export async function createUserProduct(userId: string, input: Omit<ProductRecord, '_id'>): Promise<Product> {
+  const res = await fetch(`${API_BASE}/api/products`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-ID': userId
+    },
+    body: JSON.stringify(input),
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to create product');
+  }
+  
+  // Clear cache when new product is created
+  productsCache = null;
+  cacheTimestamp = 0;
+  
+  const data = (await res.json()) as ProductRecord;
+  return mapProduct(data);
 }

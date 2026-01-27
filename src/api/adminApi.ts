@@ -74,6 +74,7 @@ export type AdminUserRecord = {
   _id: string;
   name: string;
   email: string;
+  role: 'buyer' | 'seller' | 'both';
   createdAt: string;
 };
 
@@ -181,6 +182,21 @@ export async function deleteOrder(token: string, id: string) {
 
 export async function listUsers(token: string): Promise<AdminUserRecord[]> {
   return request<AdminUserRecord[]>('/api/users', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+export async function deleteUser(token: string, id: string) {
+  return request<{ ok: true }>(`/api/users/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+export async function updateUserRole(token: string, id: string, role: 'buyer' | 'seller' | 'both') {
+  return request<AdminUserRecord>(`/api/users/${id}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
     headers: { Authorization: `Bearer ${token}` }
   });
 }

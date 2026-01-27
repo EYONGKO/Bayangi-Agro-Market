@@ -16,6 +16,9 @@ import ChatPage from './pages/ChatPage';
 import AccountDashboard from './pages/AccountDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import DashboardPage from './pages/DashboardPage';
+import RecentProductsPage from './pages/RecentProductsPage';
+import OrdersPage from './pages/OrdersPage';
+import PerformancePage from './pages/PerformancePage';
 import AuthPage from './pages/AuthPage';
 import NewsPage from './pages/NewsPage';
 import NewsDetailPage from './pages/NewsDetailPage';
@@ -68,7 +71,7 @@ function App() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/wishlist" element={<WishlistPage />} />
-                <Route path="/add-product" element={<ProtectedRoute requireSeller element={<AddProductPage />} />} />
+                <Route path="/add-product" element={<AddProductPage />} />
                 <Route path="/global-market" element={<GlobalMarketPage />} />
                 <Route path="/all-collections" element={<AllCollectionsPage />} />
                 <Route path="/news" element={<NewsPage />} />
@@ -77,8 +80,11 @@ function App() {
                 <Route path="/top-artisans/:communityId" element={<TopArtisansPage />} />
                 <Route path="/chat" element={<ProtectedRoute element={<ChatPage />} />} />
                 <Route path="/dashboard" element={<ProtectedRoute element={<DashboardPage />} />} />
+                <Route path="/recent-products" element={<ProtectedRoute element={<RecentProductsPage />} />} />
                 <Route path="/account" element={<ProtectedRoute element={<AccountDashboard />} />} />
-                <Route path="/seller" element={<ProtectedRoute requireSeller element={<SellerDashboard />} />} />
+                <Route path="/account/orders" element={<ProtectedRoute element={<OrdersPage />} />} />
+                <Route path="/performance" element={<ProtectedRoute element={<PerformancePage />} />} />
+                <Route path="/seller" element={<ProtectedRoute element={<SellerDashboard />} />} />
 
                 <Route
                   path="/admin/login"

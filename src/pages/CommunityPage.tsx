@@ -7,6 +7,8 @@ import { fetchAllProducts, subscribeProductsChanged } from '../api/productsApi';
 import { listCommunities, type CommunityRecord } from '../api/adminApi';
 import PageLayout from '../components/PageLayout';
 import ProductMiniCard from '../components/globalMarket/ProductMiniCard';
+import BrowseByInterestPills from '../components/globalMarket/BrowseByInterestPills';
+import { GIFT_MODE_INTERESTS } from '../data/giftModeInterests';
 import { theme } from '../theme/colors';
 
 const CommunityPage = () => {
@@ -14,7 +16,7 @@ const CommunityPage = () => {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
   
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedInterestId, setSelectedInterestId] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentCommunity, setCurrentCommunity] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -138,6 +140,37 @@ const CommunityPage = () => {
   const communityProducts = useMemo(() => {
     return allProducts.filter((p) => (p.community ?? '').toLowerCase() === communityId.toLowerCase());
   }, [allProducts, communityId]);
+
+  // Create pill items for BrowseByInterestPills
+  const pillItems = useMemo(() => {
+    return GIFT_MODE_INTERESTS.map((i) => ({ id: i.id, label: i.label }));
+  }, []);
+
+  // Filter community products based on selected interest and search
+  const filteredCommunityProducts = useMemo(() => {
+    let filtered = communityProducts;
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by selected interest
+    if (selectedInterestId !== 'all') {
+      const interest = GIFT_MODE_INTERESTS.find((i) => i.id === selectedInterestId);
+      if (interest) {
+        filtered = filtered.filter((product) => 
+          interest.categories.includes(product.category)
+        );
+      }
+    }
+
+    return filtered;
+  }, [communityProducts, searchQuery, selectedInterestId]);
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -280,142 +313,85 @@ const CommunityPage = () => {
               Explore authentic products from {communityName} community vendors and artisans.
             </p>
 
-            {/* Categories and Search Section */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '40px',
-              flexWrap: 'wrap',
-              gap: '20px'
-            }}>
-              {/* Category Filters */}
-              <div>
-                <h3 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  color: theme.colors.neutral[900],
-                  marginBottom: '15px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Filter by Category
-                </h3>
-                <div style={{
-                  display: 'flex',
-                  gap: '10px',
-                  flexWrap: 'wrap'
-                }}>
-                  {['All', 'Food', 'Crafts', 'Textiles', 'Art'].map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      style={{
-                        padding: '8px 20px',
-                        borderRadius: '20px',
-                        border: 'none',
-                        background: selectedCategory === category ? `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)` : theme.colors.neutral[100],
-                        color: selectedCategory === category ? theme.colors.ui.white : theme.colors.neutral[700],
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedCategory !== category) {
-                          e.currentTarget.style.background = theme.colors.neutral[200];
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedCategory !== category) {
-                          e.currentTarget.style.background = theme.colors.neutral[100];
-                        }
-                      }}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* Browse By Interest Pills - Same as Global Market */}
+            <BrowseByInterestPills
+              title={`Browse ${communityName} by interest`}
+              items={pillItems}
+              selectedId={selectedInterestId}
+              onSelect={(id: string) => setSelectedInterestId(id)}
+              showMore={false}
+            />
 
-              {/* Local Search Bar */}
-              <div style={{ 
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <input 
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    padding: '12px 40px 12px 40px',
-                    border: `1px solid ${theme.colors.neutral[200]}`,
-                    borderRadius: '25px',
-                    fontSize: '14px',
-                    width: '280px',
-                    outline: 'none',
-                    transition: 'border-color 0.3s ease',
-                    background: theme.colors.ui.white,
-                    color: theme.colors.neutral[700]
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = theme.colors.primary.main;
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = theme.colors.neutral[200];
-                  }}
-                />
-                <svg 
-                  style={{
-                    position: 'absolute',
-                    left: '12px',
-                    pointerEvents: 'none'
-                  }}
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="#999999" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
-                </svg>
-              </div>
+            {/* Local Search Bar */}
+            <div style={{ 
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '40px'
+            }}>
+              <input 
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  padding: '12px 40px 12px 40px',
+                  border: `1px solid ${theme.colors.neutral[200]}`,
+                  borderRadius: '25px',
+                  fontSize: '14px',
+                  width: '280px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  background: theme.colors.ui.white,
+                  color: theme.colors.neutral[700]
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = theme.colors.primary.main;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.colors.neutral[200];
+                }}
+              />
+              <svg 
+                style={{
+                  position: 'absolute',
+                  left: '12px',
+                  pointerEvents: 'none'
+                }}
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="#999999" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
             </div>
 
             {/* Community Products Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: '25px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: '20px',
               marginTop: '40px',
               justifyItems: 'center'
             }}>
-              {communityProducts
-                .filter(product => {
-                  const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
-                  const q = searchQuery.trim().toLowerCase();
-                  const matchesSearch =
-                    q === '' ||
-                    product.name.toLowerCase().includes(q) ||
-                    product.description.toLowerCase().includes(q) ||
-                    product.vendor.toLowerCase().includes(q);
-
-                  return matchesCategory && matchesSearch;
-                })
-                .map((product) => (
+              {filteredCommunityProducts.map((product) => (
                 <ProductMiniCard
                   key={product.id}
                   product={product}
                   isWishlisted={isWishlisted(product.id)}
                   onToggleWishlist={() => toggleWishlist(product.id)}
                   onAddToCart={() => addToCart(product)}
-                  style={{ width: '100%', maxWidth: '340px' }}
+                  style={{ 
+                    width: '100%', 
+                    maxWidth: '340px'
+                  }}
                 />
               ))}
             </div>

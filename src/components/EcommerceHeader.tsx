@@ -126,6 +126,7 @@ const SearchSection = styled(Box)({
   width: '100%',
   flex: '5', // Take up most space on desktop
   margin: '0 16px', // Reduced from 20px
+  zIndex: 10, // Ensure search bar stays above other elements when focused
   '@media (max-width: 1024px)': {
     margin: '0 12px', // Reduced from 16px
     flex: '4',
@@ -140,6 +141,7 @@ const MobileSearchSection = styled(Box)({
   position: 'relative',
   width: '100%',
   display: 'none', // Hidden by default
+  zIndex: 20, // Ensure mobile search stays above other elements
   '@media (max-width: 768px)': {
     display: 'flex', // Show only on mobile
   },
@@ -160,35 +162,51 @@ const SearchWrapper = styled(Box)({
 
 const SearchInput = styled('input')({
   width: '100%',
-  padding: '8px 16px 8px 45px', // Reduced from 10px
+  padding: '8px 16px', // Removed left padding for search icon
   border: '1px solid #d4d4d8',
   borderRadius: '32px', // Reduced from 40px
   fontSize: '14px', // Reduced from 16px
   outline: 'none',
-  transition: 'all 0.2s ease',
+  transition: 'border-color 0.2s ease, background-color 0.2s ease',
   backgroundColor: '#fafafa',
+  textAlign: 'center', // Always center the text
   '&:focus': {
     borderColor: '#222222',
     backgroundColor: '#ffffff',
     boxShadow: '0 0 0 3px rgba(34, 34, 34, 0.1)',
+    textAlign: 'center', // Keep centered even when focused
   },
   '&::placeholder': {
     color: '#737373',
   },
   '@media (max-width: 768px)': {
-    padding: '12px 16px 12px 50px', // Mobile: more padding for hamburger menu
+    padding: '12px 16px', // Mobile: removed left padding for menu icon
     fontSize: '14px',
-    backgroundColor: 'transparent',
-    border: 'none',
+    backgroundColor: '#ffffff', // White background like focused state
+    border: '1px solid #222222', // Dark border like focused state
+    boxShadow: '0 0 0 3px rgba(34, 34, 34, 0.1)', // Shadow like focused state
     flex: '1',
+    borderRadius: '24px', // Slightly less rounded on mobile
+    textAlign: 'center', // Always center on mobile
+    '&:focus': {
+      textAlign: 'center', // Keep centered when focused on mobile
+    },
   },
   '@media (max-width: 414px)': { // iPhone 6/7/8
-    padding: '10px 14px 10px 45px',
+    padding: '10px 14px', // Removed left padding
     fontSize: '13px',
+    textAlign: 'center',
+    '&:focus': {
+      textAlign: 'center',
+    },
   },
   '@media (max-width: 375px)': { // iPhone SE
-    padding: '8px 12px 8px 40px',
+    padding: '8px 12px', // Removed left padding
     fontSize: '12px',
+    textAlign: 'center',
+    '&:focus': {
+      textAlign: 'center',
+    },
   },
 });
 
@@ -237,7 +255,24 @@ const SearchIcon = styled(Search)({
   pointerEvents: 'none',
   zIndex: 1,
   '@media (max-width: 768px)': {
-    display: 'none', // Hide desktop search icon on mobile
+    display: 'flex', // Show search icon on mobile
+    left: '50px', // Position after hamburger menu
+    color: '#64748b',
+  },
+});
+
+// Mobile search icon inside input
+const MobileSearchIcon = styled(Search)({
+  position: 'absolute',
+  left: '50px', // After hamburger menu
+  top: '50%',
+  transform: 'translateY(-50%)',
+  color: '#64748b',
+  pointerEvents: 'none',
+  zIndex: 1,
+  display: 'none', // Hidden by default
+  '@media (max-width: 768px)': {
+    display: 'flex', // Show only on mobile
   },
 });
 
@@ -331,7 +366,7 @@ const MobileMenuButton = styled('button')({
   cursor: 'pointer',
   borderRadius: '8px',
   transition: 'all 0.2s ease',
-  display: 'flex',
+  display: 'none', // Hide on desktop
   alignItems: 'center',
   justifyContent: 'center',
   color: '#222222',
@@ -340,7 +375,7 @@ const MobileMenuButton = styled('button')({
     backgroundColor: '#f5f5f5',
   },
   '@media (max-width: 768px)': {
-    display: 'none', // Hide completely on mobile, use the one in search instead
+    display: 'flex', // Show only on mobile
   },
 });
 
@@ -490,7 +525,6 @@ export default function EcommerceHeader() {
 
         <SearchSection>
           <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
-            <SearchIcon size={20} />
             <SearchInput 
               type="search" 
               placeholder={header.searchPlaceholder}

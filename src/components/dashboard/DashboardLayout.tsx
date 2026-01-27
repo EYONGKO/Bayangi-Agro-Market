@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, MessageCircle, Store, PlusSquare, Wallet, User, LogIn, LogOut } from 'lucide-react';
+import { Home, MessageCircle, Store, PlusSquare, Wallet, User, LogIn, LogOut, Package, ShoppingBag, BarChart3 } from 'lucide-react';
 import AnnouncementBar from '../AnnouncementBar';
 import EcommerceHeader from '../EcommerceHeader';
 import CategoryNavigation from '../CategoryNavigation';
@@ -8,10 +8,13 @@ import { useAuth } from '../../context/AuthContext';
 import SiteFooter from '../SiteFooter';
 
 const navItems = [
-  // { to: '/dashboard', label: 'Dashboard', icon: <Home size={20} /> },
+  { to: '/seller', label: 'Dashboard', icon: <Home size={20} /> },
   { to: '/chat', label: 'Chat', icon: <MessageCircle size={20} /> },
   { to: '/global-market', label: 'Marketplace', icon: <Store size={20} /> },
-  { to: '/add-product', label: 'Create', icon: <PlusSquare size={20} /> },
+  { to: '/add-product', label: 'Add Product', icon: <PlusSquare size={20} /> },
+  { to: '/recent-products', label: 'Recent Products', icon: <Package size={20} /> },
+  { to: '/account/orders', label: 'Recent Orders', icon: <ShoppingBag size={20} /> },
+  { to: '/performance', label: 'Performance', icon: <BarChart3 size={20} /> },
   { to: '/wallet', label: 'Wallet', icon: <Wallet size={20} /> },
   { to: '/account', label: 'Profile', icon: <User size={20} /> }
 ];

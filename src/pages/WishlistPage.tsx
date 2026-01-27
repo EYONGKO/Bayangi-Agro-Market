@@ -175,7 +175,7 @@ const WishlistPage = () => {
 
                   <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
                     <div style={{ fontSize: '14px', fontWeight: 900, color: '#111827' }}>
-                      ₦{product.price.toLocaleString()}
+                      FCFA{product.price.toLocaleString()}
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px' }}>

@@ -24,27 +24,58 @@ const ProductDetailPage = () => {
   const [viewerImageIndex, setViewerImageIndex] = useState(0);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [productsLoaded, setProductsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const stateProduct = (location.state as { product?: Product } | null)?.product;
 
   useEffect(() => {
     let mounted = true;
     const loadProducts = () => {
+      setIsLoading(true);
       fetchAllProducts()
         .then((data) => {
-          if (mounted) setAllProducts(data);
+          if (mounted) {
+            setAllProducts(data);
+            setProductsLoaded(true);
+            setIsLoading(false);
+          }
         })
         .catch(() => {
-          if (mounted) setAllProducts([]);
+          if (mounted) {
+            setAllProducts([]);
+            setProductsLoaded(true);
+            setIsLoading(false);
+          }
         });
     };
-    loadProducts();
+    
+    // Only fetch if we don't have a product from state
+    if (!stateProduct) {
+      loadProducts();
+    } else {
+      // Load products in background for related products (no loading state needed)
+      fetchAllProducts()
+        .then((data) => {
+          if (mounted) {
+            setAllProducts(data);
+            setProductsLoaded(true);
+          }
+        })
+        .catch(() => {
+          if (mounted) {
+            setAllProducts([]);
+            setProductsLoaded(true);
+          }
+        });
+    }
+    
     const unsubscribe = subscribeProductsChanged(() => loadProducts());
     return () => {
       mounted = false;
       unsubscribe();
     };
-  }, []);
+  }, [stateProduct]);
 
   const storedProduct = useMemo(() => {
     if (!id) return undefined;
@@ -57,7 +88,8 @@ const ProductDetailPage = () => {
     if (resolved) {
       const images = (resolved as Product & { images?: string[] }).images;
 
-      const related = allProducts
+      // Only show related products when products are loaded
+      const related = productsLoaded ? allProducts
         .filter(p => p.id !== resolved.id)
         .filter(p => p.category === resolved.category || p.community === resolved.community)
         .slice(0, 4)
@@ -67,7 +99,7 @@ const ProductDetailPage = () => {
           price: p.price,
           image: p.image,
           rating: p.rating ?? 4.8
-        }));
+        })) : [];
 
       return {
         ...resolved,
@@ -94,70 +126,61 @@ const ProductDetailPage = () => {
       };
     }
 
+    // Show loading state instead of "Product Not Found" when loading
+    if (isLoading && !stateProduct) {
+      return {
+        id: id ? Number(id) : 0,
+        name: 'Loading...',
+        price: 0,
+        description: 'Loading product details...',
+        image: '',
+        category: 'Loading',
+        community: 'Loading',
+        vendor: 'Loading',
+        originalPrice: 0,
+        discount: 0,
+        rating: 0,
+        reviewCount: 0,
+        inStock: false,
+        stockCount: 0,
+        images: [''],
+        features: [],
+        shipping: {
+          freeShipping: false,
+          estimatedDays: 'Loading...',
+          returns: 'Loading...',
+          warranty: 'Loading...'
+        },
+        relatedProducts: []
+      };
+    }
+
     return {
-      id: id ? Number(id) : 1,
-      name: 'Handcrafted Wooden Sculpture',
-      price: 45000,
-      description:
-        'Beautiful handcrafted wooden sculpture made by skilled artisans from the Kendem community. This unique piece showcases traditional craftsmanship passed down through generations. Each sculpture is one-of-a-kind and tells a story of cultural heritage.',
-      image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop',
-      category: 'Art & Collectibles',
-      community: 'Kendem',
-      vendor: 'Master Craftsman Johnson',
-      originalPrice: 50000,
-      discount: 10,
-      rating: 4.8,
-      reviewCount: 127,
-      inStock: true,
-      stockCount: 5,
-      images: [
-        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=600&fit=crop'
-      ],
-      features: [
-        'Handcrafted by skilled artisans',
-        'Made from sustainable wood',
-        'Unique cultural design',
-        'Certificate of authenticity included'
-      ],
+      id: id ? Number(id) : 0,
+      name: 'Product Not Found',
+      price: 0,
+      description: 'This product could not be found or has been removed.',
+      image: '',
+      category: 'Unknown',
+      community: 'Unknown',
+      vendor: 'Unknown',
+      originalPrice: 0,
+      discount: 0,
+      rating: 0,
+      reviewCount: 0,
+      inStock: false,
+      stockCount: 0,
+      images: [''],
+      features: [],
       shipping: {
-        freeShipping: true,
-        estimatedDays: '3-5 business days',
-        returns: '30-day returns',
-        warranty: '1-year warranty'
+        freeShipping: false,
+        estimatedDays: 'N/A',
+        returns: 'N/A',
+        warranty: 'N/A'
       },
-      relatedProducts: [
-        {
-          id: '2',
-          name: 'Traditional Pottery Set',
-          price: 25000,
-          image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop',
-          rating: 4.6
-        },
-        {
-          id: '3',
-          name: 'Handwoven Basket',
-          price: 18000,
-          image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=300&h=300&fit=crop',
-          rating: 4.9
-        },
-        {
-          id: '4',
-          name: 'Cultural Textile',
-          price: 32000,
-          image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop',
-          rating: 4.7
-        },
-        {
-          id: '5',
-          name: 'Artisan Jewelry',
-          price: 15000,
-          image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=300&h=300&fit=crop',
-          rating: 4.5
-        }
-      ]
+      relatedProducts: []
     };
-  }, [id, stateProduct, storedProduct, allProducts]);
+  }, [id, stateProduct, storedProduct, allProducts, productsLoaded, isLoading]);
 
   const reviewStats = useMemo(() => {
     return getReviewStatsForProduct(Number(product.id));
@@ -1042,8 +1065,8 @@ const ProductDetailPage = () => {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '25px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gap: '20px'
           }}>
             {product.relatedProducts.map((relatedProduct) => (
               <Link
@@ -1111,7 +1134,7 @@ const ProductDetailPage = () => {
                     fontWeight: '700',
                     color: '#2ecc71'
                   }}>
-                    ₦{relatedProduct.price.toLocaleString()}
+                    FCFA{relatedProduct.price.toLocaleString()}
                   </div>
                 </div>
               </Link>

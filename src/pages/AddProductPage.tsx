@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, X } from 'lucide-react';
 import type { Product } from '../context/CartContext';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import PageLayout from '../components/PageLayout';
-import { createProduct } from '../api/adminApi';
+import { createUserProduct } from '../api/productsApi';
 import { notifyProductsChanged } from '../api/productsApi';
 import { theme } from '../theme/colors';
 import { getCommunities } from '../api/communitiesApi';
 
-const ADMIN_TOKEN_KEY = 'local-roots-admin-token';
-
 const AddProductPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, currentUser } = useAuth();
   useCart();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
     price: string;
@@ -34,7 +35,6 @@ const AddProductPage = () => {
     images: []
   });
   const [imagePreview, setImagePreview] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDraggingImages, setIsDraggingImages] = useState(false);
   const [communitiesList, setCommunitiesList] = useState<string[]>([]);
   const [loadingCommunities, setLoadingCommunities] = useState(false);
@@ -153,10 +153,15 @@ const AddProductPage = () => {
     }
 
     try {
-      const token = window.localStorage.getItem(ADMIN_TOKEN_KEY) || '';
-      if (!token) {
-        alert('Please login as admin before publishing a listing.');
-        navigate('/admin/products');
+      if (!isAuthenticated || !currentUser) {
+        alert('Please login to add products.');
+        navigate('/auth');
+        return;
+      }
+
+      if (currentUser.role === 'buyer') {
+        alert('Only sellers can add products. Please contact admin to upgrade your account to seller status.');
+        navigate('/dashboard');
         return;
       }
 
@@ -179,13 +184,20 @@ const AddProductPage = () => {
         images: formData.images.length ? formData.images : [image]
       };
 
-      const created = await createProduct(token, payload as any);
+      const created = await createUserProduct(currentUser.id, payload as any);
       notifyProductsChanged();
 
       alert('Product added successfully!');
       navigate(`/community/${created.community || communityId}`);
-    } catch (error) {
-      alert('Error adding product. Please try again.');
+    } catch (error: any) {
+      console.error('Error adding product:', error);
+      
+      // Handle duplicate product error
+      if (error.message?.includes('duplicate') || error.message?.includes('already exists')) {
+        alert('This product already exists for this vendor in this community. Please use a different product name or check existing products.');
+      } else {
+        alert('Error adding product. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
