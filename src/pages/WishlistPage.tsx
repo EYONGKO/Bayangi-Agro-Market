@@ -6,6 +6,7 @@ import type { Product } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { fetchAllProducts, subscribeProductsChanged } from '../api/productsApi';
 import PageLayout from '../components/PageLayout';
+import theme from '../theme';
 
 const WishlistPage = () => {
   const { addToCart } = useCart();
@@ -52,7 +53,7 @@ const WishlistPage = () => {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Heart size={24} color="#ff4757" fill="#ff4757" />
+              <Heart size={24} color={theme.colors.primary.main} fill={theme.colors.primary.main} />
               <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 900, color: '#111827' }}>Wishlist</h1>
               <span style={{
                 fontSize: '14px',
@@ -105,13 +106,13 @@ const WishlistPage = () => {
               height: '64px',
               margin: '0 auto 16px',
               borderRadius: '16px',
-              background: '#fff1f2',
+              background: theme.colors.primary.background,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '1px solid #fecdd3'
+              border: `1px solid ${theme.colors.primary.light}`
             }}>
-              <Heart size={26} color="#ff4757" />
+              <Heart size={26} color={theme.colors.primary.main} />
             </div>
             <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 900, color: '#111827' }}>
               Your wishlist is empty

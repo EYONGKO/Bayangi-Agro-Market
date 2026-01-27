@@ -9,6 +9,7 @@ import {
   HeaderFooterEditor,
   NavLinksEditor,
   SectionTogglesEditor,
+  PageHeroEditor,
 } from '../components/siteSettings';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useAdminAuth } from '../AdminAuthContext';
@@ -16,7 +17,7 @@ import { updateSiteSettings } from '../../api/siteSettingsApi';
 import type { SiteSettings } from '../../config/siteSettingsTypes';
 import { mergeWithDefaults } from '../../config/siteSettingsTypes';
 
-type TabKey = 'hero' | 'features' | 'announcement' | 'headerFooter' | 'nav' | 'sections';
+type TabKey = 'hero' | 'features' | 'announcement' | 'headerFooter' | 'nav' | 'sections' | 'pageHeroes';
 
 export default function SiteSettingsAdminPage() {
   const { token } = useAdminAuth();
@@ -114,6 +115,7 @@ export default function SiteSettingsAdminPage() {
 
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tab label="Hero" value="hero" sx={{ fontWeight: 800, textTransform: 'none' }} />
+        <Tab label="Page Heroes" value="pageHeroes" sx={{ fontWeight: 800, textTransform: 'none' }} />
         <Tab label="Features" value="features" sx={{ fontWeight: 800, textTransform: 'none' }} />
         <Tab label="Announcement" value="announcement" sx={{ fontWeight: 800, textTransform: 'none' }} />
         <Tab label="Header & Footer" value="headerFooter" sx={{ fontWeight: 800, textTransform: 'none' }} />
@@ -126,8 +128,27 @@ export default function SiteSettingsAdminPage() {
           token={token}
           slides={local.heroSlides || []}
           autoSlideInterval={local.heroAutoSlideInterval}
+          backgroundImages={local.heroBackgroundImages}
           onChange={handleChange}
         />
+      )}
+      {tab === 'pageHeroes' && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <PageHeroEditor
+            token={token}
+            title="All Collections Hero"
+            heroConfig={local.collectionsHero}
+            onChange={handleChange}
+            heroType="collections"
+          />
+          <PageHeroEditor
+            token={token}
+            title="News Hero"
+            heroConfig={local.newsHero}
+            onChange={handleChange}
+            heroType="news"
+          />
+        </Box>
       )}
       {tab === 'features' && (
         <FeaturesEditor features={local.features || []} onChange={handleChange} />

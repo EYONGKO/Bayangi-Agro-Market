@@ -1,16 +1,24 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Heart, MessageSquare, User, Store, TrendingUp, Package, CreditCard, Settings } from 'lucide-react';
+import { ShoppingBag, Heart, MessageSquare, Store, TrendingUp, Package, Edit3, User } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
+import ProfileEditor from '../components/ProfileEditor';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { getAllProducts } from '../data/productsStore';
 import { theme } from '../theme/colors';
+import { useState, useEffect } from 'react';
 
 export default function AccountDashboard() {
-  const { currentUser } = useAuth();
+  const { currentUser, refreshUserProfile } = useAuth();
   const { cart } = useCart();
   const { wishlistIds } = useWishlist();
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
+  
+  // Refresh profile from backend on mount
+  useEffect(() => {
+    refreshUserProfile();
+  }, [refreshUserProfile]);
   
   // Get real user products
   const allProducts = getAllProducts();
@@ -31,19 +39,30 @@ export default function AccountDashboard() {
           {/* Header */}
           <div className="bg-white rounded-2xl shadow-lg border border-white/20 p-6 mb-6" style={{ borderColor: theme.colors.neutral[200], boxShadow: `0 4px 20px ${theme.colors.ui.shadow}` }}>
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl" style={{ background: `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)` }}>
-                    {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)` }}>
+                    {currentUser?.profilePhoto ? (
+                      <img src={currentUser.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={32} />
+                    )}
                   </div>
-                  <div>
-                    <h1 className="text-2xl font-bold" style={{ color: theme.colors.neutral[900] }}>
-                      Welcome back, {currentUser?.name || 'User'}!
-                    </h1>
-                    <p className="text-sm" style={{ color: theme.colors.neutral[600] }}>
-                      {currentUser?.email} • {currentUser?.role || 'buyer'} account
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => setShowProfileEditor(!showProfileEditor)}
+                    className="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200 hover:scale-110"
+                    style={{ background: `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)` }}
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold" style={{ color: theme.colors.neutral[900] }}>
+                    Welcome back, {currentUser?.name || 'User'}!
+                  </h1>
+                  <p className="text-sm" style={{ color: theme.colors.neutral[600] }}>
+                    {currentUser?.email} • {currentUser?.role || 'buyer'} account
+                  </p>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -67,6 +86,16 @@ export default function AccountDashboard() {
             </div>
           </div>
 
+          {/* Profile Editor */}
+          {showProfileEditor && (
+            <div className="mb-6">
+              <ProfileEditor 
+                compact={true} 
+                onClose={() => setShowProfileEditor(false)} 
+              />
+            </div>
+          )}
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-2xl shadow-lg border border-white/20 p-6" style={{ borderColor: theme.colors.neutral[200], boxShadow: `0 4px 20px ${theme.colors.ui.shadow}` }}>
@@ -74,7 +103,6 @@ export default function AccountDashboard() {
                 <div className="p-3 rounded-xl" style={{ backgroundColor: `${theme.colors.primary.background}` }}>
                   <Package className="w-6 h-6" style={{ color: theme.colors.primary.main }} />
                 </div>
-                <span className="text-sm font-medium text-green-600">+{totalProducts}</span>
               </div>
               <div>
                 <div className="text-2xl font-bold" style={{ color: theme.colors.neutral[900] }}>{totalProducts}</div>
@@ -87,7 +115,6 @@ export default function AccountDashboard() {
                 <div className="p-3 rounded-xl" style={{ backgroundColor: `${theme.colors.primary.background}` }}>
                   <ShoppingBag className="w-6 h-6" style={{ color: theme.colors.primary.main }} />
                 </div>
-                <span className="text-sm font-medium text-green-600">+{totalCartItems}</span>
               </div>
               <div>
                 <div className="text-2xl font-bold" style={{ color: theme.colors.neutral[900] }}>{totalCartItems}</div>
@@ -100,7 +127,6 @@ export default function AccountDashboard() {
                 <div className="p-3 rounded-xl" style={{ backgroundColor: `${theme.colors.primary.background}` }}>
                   <Heart className="w-6 h-6" style={{ color: theme.colors.primary.main }} />
                 </div>
-                <span className="text-sm font-medium text-green-600">+{totalWishlistItems}</span>
               </div>
               <div>
                 <div className="text-2xl font-bold" style={{ color: theme.colors.neutral[900] }}>{totalWishlistItems}</div>
@@ -113,7 +139,6 @@ export default function AccountDashboard() {
                 <div className="p-3 rounded-xl" style={{ backgroundColor: `${theme.colors.primary.background}` }}>
                   <TrendingUp className="w-6 h-6" style={{ color: theme.colors.primary.main }} />
                 </div>
-                <span className="text-sm font-medium text-green-600">Active</span>
               </div>
               <div>
                 <div className="text-2xl font-bold" style={{ color: theme.colors.neutral[900] }}>

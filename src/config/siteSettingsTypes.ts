@@ -15,6 +15,13 @@ export interface HeroSlideItem {
   link?: string;
 }
 
+export interface PageHeroConfig {
+  title: string;
+  subtitle: string;
+  backgroundImages: string[];
+  autoSlideInterval?: number;
+}
+
 export interface FeatureItem {
   id: string;
   iconId: 'headphones' | 'shield' | 'truck' | 'gift' | string;
@@ -90,9 +97,23 @@ export interface MarketPricesConfig {
   priceItems: PriceItem[];
 }
 
+export interface Collection {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  image: string;
+  itemCount: number;
+  featured: boolean;
+}
+
 export interface SiteSettings {
   heroSlides?: HeroSlideItem[];
   heroAutoSlideInterval?: number;
+  heroBackgroundImages?: string[];
+  collections?: Collection[];
+  collectionsHero?: PageHeroConfig;
+  newsHero?: PageHeroConfig;
   features?: FeatureItem[];
   announcementBar?: AnnouncementBarConfig;
   header?: HeaderConfig;
@@ -108,10 +129,122 @@ export const DEFAULT_HERO_SLIDES: HeroSlideItem[] = [
   { id: 3, smallLabel: 'Artisan Crafts', title: 'Handmade Excellence', description: 'Explore unique handmade crafts and traditional arts from skilled artisans. Each piece tells a story and supports local communities.', image: '/hero person management.png', buttonText: 'Shop Now', link: '/global-market' },
 ];
 
+export const DEFAULT_HERO_BACKGROUND_IMAGES = [
+  '/hero-moving-bg.jpg',
+  '/hero-moving-bg-2.jpg',
+  '/hero-moving-bg-3.jpg'
+];
+
+export const DEFAULT_COLLECTIONS: Collection[] = [
+  {
+    id: 'handmade-crafts',
+    name: 'Handmade Crafts',
+    description: 'Unique artisan-made products crafted with traditional techniques and modern designs.',
+    category: 'Crafts',
+    image: '/kendem-hero.jpg',
+    itemCount: 145,
+    featured: true,
+  },
+  {
+    id: 'agricultural-products',
+    name: 'Agricultural Products',
+    description: 'Fresh produce and agricultural goods from local farmers and communities.',
+    category: 'Agriculture',
+    image: '/mamfe-hero.jpg',
+    itemCount: 89,
+    featured: true,
+  },
+  {
+    id: 'textiles-fabrics',
+    name: 'Textiles & Fabrics',
+    description: 'Beautiful handwoven textiles, traditional fabrics, and textile-based products.',
+    category: 'Textiles',
+    image: '/widikum-hero.jpg',
+    itemCount: 67,
+    featured: false,
+  },
+  {
+    id: 'home-decor',
+    name: 'Home & Decor',
+    description: 'Decorative items and home accessories that bring cultural beauty to your space.',
+    category: 'Home',
+    image: '/kendem-hero.jpg',
+    itemCount: 92,
+    featured: false,
+  },
+  {
+    id: 'fashion-accessories',
+    name: 'Fashion & Accessories',
+    description: 'Stylish fashion items and accessories that blend traditional and contemporary styles.',
+    category: 'Fashion',
+    image: '/mamfe-hero.jpg',
+    itemCount: 156,
+    featured: false,
+  },
+  {
+    id: 'food-beverages',
+    name: 'Food & Beverages',
+    description: 'Artisanal food products and beverages made from locally sourced ingredients.',
+    category: 'Food',
+    image: '/widikum-hero.jpg',
+    itemCount: 73,
+    featured: false,
+  },
+  {
+    id: 'pottery-ceramics',
+    name: 'Pottery & Ceramics',
+    description: 'Functional and decorative pottery pieces crafted using time-honored methods.',
+    category: 'Crafts',
+    image: '/kendem-hero.jpg',
+    itemCount: 54,
+    featured: false,
+  },
+  {
+    id: 'woodwork',
+    name: 'Woodwork & Carvings',
+    description: 'Intricate wood carvings and furniture pieces showcasing masterful craftsmanship.',
+    category: 'Crafts',
+    image: '/mamfe-hero.jpg',
+    itemCount: 48,
+    featured: false,
+  },
+  {
+    id: 'seasonal-gifts',
+    name: 'Seasonal & Gift Items',
+    description: 'Perfect gifts for any occasion, curated from our best-selling products.',
+    category: 'Gifts',
+    image: '/widikum-hero.jpg',
+    itemCount: 128,
+    featured: true,
+  },
+];
+
+export const DEFAULT_COLLECTIONS_HERO: PageHeroConfig = {
+  title: 'All Collections',
+  subtitle: 'Explore our curated collections of authentic products from artisans and farmers around the world.',
+  backgroundImages: [
+    '/hero-moving-bg.jpg',
+    '/hero-moving-bg-2.jpg',
+    '/hero-moving-bg-3.jpg'
+  ],
+  autoSlideInterval: 4000,
+};
+
+export const DEFAULT_NEWS_HERO: PageHeroConfig = {
+  title: 'Latest News & Stories',
+  subtitle: 'Stay updated with the latest news, success stories, and insights from our global community of artisans and farmers.',
+  backgroundImages: [
+    '/hero-moving-bg.jpg',
+    '/hero-moving-bg-2.jpg',
+    '/hero-moving-bg-3.jpg'
+  ],
+  autoSlideInterval: 4000,
+};
+
 export const DEFAULT_FEATURES: FeatureItem[] = [
   { id: 'support', iconId: 'headphones', title: '24 X 7 Free Support', subtitle: 'Online Support 24/7', bgColor: theme.colors.primary.main },
   { id: 'guarantee', iconId: 'shield', title: 'Money Back Guarantee', subtitle: '100% Secure Payment', bgColor: theme.colors.primary.light },
-  { id: 'shipping', iconId: 'truck', title: 'Free Worldwide Shipping', subtitle: 'On Order Over 25000 FCFA', bgColor: theme.colors.primary.dark },
+  { id: 'shipping', iconId: 'truck', title: 'Free Worldwide Shipping', subtitle: 'On Order Over 5000 FCFA', bgColor: theme.colors.primary.dark },
   { id: 'gift', iconId: 'gift', title: 'Win 10000 FCFA To Shop', subtitle: 'Give The Perfect Gift', bgColor: theme.colors.primary.background },
 ];
 
@@ -139,8 +272,8 @@ export const DEFAULT_FOOTER: FooterConfig = {
     { label: 'Top Artisans', path: '/top-artisans' },
     { label: 'Add Product', path: '/add-product' },
   ],
-  contactEmail: 'info@bayangiagromarket.com',
-  contactPhone: '+237 123 456 7890',
+  contactEmail: 'eyongkomatchfire@gmail.com',
+  contactPhone: '+237 681 006 594',
   contactAddress: 'Cameroon',
   bottomLine: 'Empowering agricultural communities • Connecting global markets',
 };
@@ -196,6 +329,10 @@ export function mergeWithDefaults(partial: Partial<SiteSettings> | null): SiteSe
     return {
       heroSlides: [...DEFAULT_HERO_SLIDES],
       heroAutoSlideInterval: 5000,
+      heroBackgroundImages: [...DEFAULT_HERO_BACKGROUND_IMAGES],
+      collections: [...DEFAULT_COLLECTIONS],
+      collectionsHero: { ...DEFAULT_COLLECTIONS_HERO },
+      newsHero: { ...DEFAULT_NEWS_HERO },
       features: [...DEFAULT_FEATURES],
       announcementBar: { ...DEFAULT_ANNOUNCEMENT },
       header: { ...DEFAULT_HEADER },
@@ -208,6 +345,10 @@ export function mergeWithDefaults(partial: Partial<SiteSettings> | null): SiteSe
   return {
     heroSlides: partial.heroSlides && partial.heroSlides.length > 0 ? partial.heroSlides : DEFAULT_HERO_SLIDES,
     heroAutoSlideInterval: typeof partial.heroAutoSlideInterval === 'number' ? partial.heroAutoSlideInterval : 5000,
+    heroBackgroundImages: partial.heroBackgroundImages && partial.heroBackgroundImages.length > 0 ? partial.heroBackgroundImages : DEFAULT_HERO_BACKGROUND_IMAGES,
+    collections: partial.collections && partial.collections.length > 0 ? partial.collections : DEFAULT_COLLECTIONS,
+    collectionsHero: { ...DEFAULT_COLLECTIONS_HERO, ...partial.collectionsHero },
+    newsHero: { ...DEFAULT_NEWS_HERO, ...partial.newsHero },
     features: partial.features && partial.features.length > 0 ? partial.features : DEFAULT_FEATURES,
     announcementBar: { ...DEFAULT_ANNOUNCEMENT, ...partial.announcementBar },
     header: { ...DEFAULT_HEADER, ...partial.header },

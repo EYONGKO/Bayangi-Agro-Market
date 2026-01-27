@@ -136,6 +136,52 @@ const GlobalMarketPage = () => {
 
   return (
     <PageLayout>
+      <style>{`
+        .global-market-search-input {
+          @media (max-width: 414px) {
+            padding: 8px 35px 8px 12px !important;
+            font-size: 12px !important;
+            max-width: 280px !important;
+            border-radius: 16px !important;
+          }
+        }
+        
+        .global-market-header {
+          @media (max-width: 414px) {
+            padding: 8px 12px !important;
+          }
+        }
+        
+        .global-market-header button {
+          @media (max-width: 414px) {
+            padding: 6px !important;
+          }
+        }
+        
+        .global-market-header .header-title {
+          @media (max-width: 414px) {
+            font-size: 14px !important;
+          }
+        }
+        
+        .global-market-header .header-icon {
+          @media (max-width: 414px) {
+            width: 18px !important;
+            height: 18px !important;
+          }
+        }
+        
+        .global-market-header .badge {
+          @media (max-width: 414px) {
+            min-width: 14px !important;
+            height: 14px !important;
+            font-size: 9px !important;
+            top: 2px !important;
+            right: 2px !important;
+            padding: 0 3px !important;
+          }
+        }
+      `}</style>
       <div style={{ minHeight: '100vh', background: `linear-gradient(135deg, ${theme.colors.primary.background} 0%, ${theme.colors.primary.light}40% 50%, ${theme.colors.primary.main} 100%)` }}>
         <BrowseByInterestPills
           title="Browse by interest for the best gifts!"
@@ -160,32 +206,36 @@ const GlobalMarketPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              padding: '12px 40px 12px 40px',
+              padding: '10px 40px 10px 16px', // Reduced height and left padding, keep right padding for icon
               border: `1px solid ${theme.colors.neutral[200]}`,
-              borderRadius: '25px',
-              fontSize: '14px',
+              borderRadius: '20px', // Reduced border radius
+              fontSize: '13px', // Reduced font size
               width: '100%',
-              maxWidth: '400px',
+              maxWidth: '350px', // Reduced max width
               outline: 'none',
               transition: 'border-color 0.3s ease',
               background: theme.colors.ui.white,
-              color: theme.colors.neutral[700]
+              color: theme.colors.neutral[700],
+              textAlign: 'center', // Center the placeholder text
             }}
+            className="global-market-search-input"
             onFocus={(e) => {
               e.currentTarget.style.borderColor = theme.colors.primary.main;
+              e.currentTarget.style.textAlign = 'left'; // Align left when typing
             }}
             onBlur={(e) => {
               e.currentTarget.style.borderColor = theme.colors.neutral[200];
+              e.currentTarget.style.textAlign = 'center'; // Center when not focused
             }}
           />
           <svg 
             style={{
               position: 'absolute',
-              left: '20px',
+              right: '20px',
               pointerEvents: 'none'
             }}
-            width="16" 
-            height="16" 
+            width="14" 
+            height="14" 
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="#999999" 

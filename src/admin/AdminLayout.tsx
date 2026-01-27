@@ -17,6 +17,7 @@ import {
   Eye,
   DollarSign,
   Award,
+  Grid3X3,
 } from 'lucide-react';
 
 const drawerWidth = 280;
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Visitors', to: '/admin/visitors', icon: <Eye size={18} /> },
   { label: 'Prices', to: '/admin/prices', icon: <DollarSign size={18} /> },
   { label: 'Products', to: '/admin/products', icon: <Package size={18} /> },
+  { label: 'Collections', to: '/admin/collections', icon: <Grid3X3 size={18} /> },
   { label: 'Orders', to: '/admin/orders', icon: <ShoppingCart size={18} /> },
   { label: 'Users', to: '/admin/users', icon: <Users size={18} /> },
   { label: 'Top Artisans', to: '/admin/artisans', icon: <Award size={18} /> },

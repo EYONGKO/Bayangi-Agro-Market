@@ -9,3 +9,4 @@ export { default as AnnouncementEditor } from './AnnouncementEditor';
 export { default as HeaderFooterEditor } from './HeaderFooterEditor';
 export { default as NavLinksEditor } from './NavLinksEditor';
 export { default as SectionTogglesEditor } from './SectionTogglesEditor';
+export { default as PageHeroEditor } from './PageHeroEditor';

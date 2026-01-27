@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { Box, Container } from '@mui/material';
 import { Package, TrendingUp } from 'lucide-react';
+import { useSiteSettings } from '../context/SiteSettingsContext';
+import { DEFAULT_COLLECTIONS } from '../config/siteSettingsTypes';
+import type { Collection } from '../config/siteSettingsTypes';
 import PageLayout from '../components/PageLayout';
+import MovingHeroSection from '../components/MovingHeroSection';
 import { theme } from '../theme/colors';
 
 const PageWrapper = styled(Box)({
@@ -12,28 +16,6 @@ const PageWrapper = styled(Box)({
   paddingBottom: '80px',
 });
 
-const HeroSection = styled(Box)({
-  background: `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)`,
-  color: theme.colors.ui.white,
-  padding: '60px 20px',
-  marginBottom: '40px',
-});
-
-const HeroTitle = styled('h1')({
-  fontSize: 'clamp(32px, 5vw, 48px)',
-  fontWeight: 900,
-  marginBottom: '16px',
-  textAlign: 'center',
-});
-
-const HeroSubtitle = styled('p')({
-  fontSize: '18px',
-  opacity: 0.95,
-  textAlign: 'center',
-  maxWidth: '700px',
-  margin: '0 auto',
-  lineHeight: 1.6,
-});
 
 const ContentContainer = styled(Container)({
   width: '100%',
@@ -48,8 +30,28 @@ const FilterBar = styled(Box)({
   display: 'flex',
   gap: '12px',
   marginBottom: '40px',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
+  flexWrap: 'nowrap',
+  justifyContent: 'flex-start',
+  overflowX: 'auto',
+  padding: '0 20px',
+  '&::-webkit-scrollbar': {
+    height: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: '#f1f1f1',
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: '#c1c1c1',
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: '#a8a8a8',
+  },
+  '@media (max-width: 768px)': {
+    padding: '0 16px',
+    gap: '8px',
+  },
 });
 
 const FilterButton = styled('button')<{ active?: boolean }>(({ active }) => ({
@@ -62,9 +64,15 @@ const FilterButton = styled('button')<{ active?: boolean }>(({ active }) => ({
   fontSize: '14px',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
   '&:hover': {
     transform: 'translateY(-2px)',
     boxShadow: active ? `0 4px 12px ${theme.colors.primary.light}40%` : `0 2px 8px ${theme.colors.ui.shadow}`,
+  },
+  '@media (max-width: 768px)': {
+    padding: '8px 16px',
+    fontSize: '13px',
   },
 }));
 
@@ -179,104 +187,12 @@ const BrowseButton = styled('button')({
   },
 });
 
-interface Collection {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  image: string;
-  itemCount: number;
-  featured: boolean;
-}
-
-const collections: Collection[] = [
-  {
-    id: 'handmade-crafts',
-    name: 'Handmade Crafts',
-    description: 'Unique artisan-made products crafted with traditional techniques and modern designs.',
-    category: 'Crafts',
-    image: '/kendem-hero.jpg',
-    itemCount: 145,
-    featured: true,
-  },
-  {
-    id: 'agricultural-products',
-    name: 'Agricultural Products',
-    description: 'Fresh produce and agricultural goods from local farmers and communities.',
-    category: 'Agriculture',
-    image: '/mamfe-hero.jpg',
-    itemCount: 89,
-    featured: true,
-  },
-  {
-    id: 'textiles-fabrics',
-    name: 'Textiles & Fabrics',
-    description: 'Beautiful handwoven textiles, traditional fabrics, and textile-based products.',
-    category: 'Textiles',
-    image: '/widikum-hero.jpg',
-    itemCount: 67,
-    featured: false,
-  },
-  {
-    id: 'home-decor',
-    name: 'Home & Decor',
-    description: 'Decorative items and home accessories that bring cultural beauty to your space.',
-    category: 'Home',
-    image: '/membe-hero.jpg',
-    itemCount: 112,
-    featured: false,
-  },
-  {
-    id: 'jewelry-accessories',
-    name: 'Jewelry & Accessories',
-    description: 'Handcrafted jewelry and fashion accessories made by skilled artisans.',
-    category: 'Fashion',
-    image: '/fonjo-hero.jpg',
-    itemCount: 93,
-    featured: true,
-  },
-  {
-    id: 'food-beverages',
-    name: 'Food & Beverages',
-    description: 'Traditional foods, spices, and beverages from various local communities.',
-    category: 'Food',
-    image: '/moshie-kekpoti-hero.png',
-    itemCount: 76,
-    featured: false,
-  },
-  {
-    id: 'pottery-ceramics',
-    name: 'Pottery & Ceramics',
-    description: 'Functional and decorative pottery pieces crafted using time-honored methods.',
-    category: 'Crafts',
-    image: '/kendem-hero.jpg',
-    itemCount: 54,
-    featured: false,
-  },
-  {
-    id: 'woodwork',
-    name: 'Woodwork & Carvings',
-    description: 'Intricate wood carvings and furniture pieces showcasing masterful craftsmanship.',
-    category: 'Crafts',
-    image: '/mamfe-hero.jpg',
-    itemCount: 48,
-    featured: false,
-  },
-  {
-    id: 'seasonal-gifts',
-    name: 'Seasonal & Gift Items',
-    description: 'Perfect gifts for any occasion, curated from our best-selling products.',
-    category: 'Gifts',
-    image: '/widikum-hero.jpg',
-    itemCount: 128,
-    featured: true,
-  },
-];
-
 const categories = ['All', 'Crafts', 'Agriculture', 'Textiles', 'Home', 'Fashion', 'Food', 'Gifts'];
 
 export default function AllCollectionsPage() {
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+  const collections = settings.collections || DEFAULT_COLLECTIONS;
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const filteredCollections = selectedCategory === 'All'
@@ -286,12 +202,7 @@ export default function AllCollectionsPage() {
   return (
     <PageLayout>
       <PageWrapper>
-        <HeroSection>
-          <HeroTitle>All Collections</HeroTitle>
-          <HeroSubtitle>
-            Explore our curated collections of authentic products from artisans and farmers around the world.
-          </HeroSubtitle>
-        </HeroSection>
+        <MovingHeroSection heroType="collections" />
 
         <ContentContainer maxWidth={false} disableGutters>
           <FilterBar>

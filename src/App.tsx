@@ -24,7 +24,9 @@ import NewsPage from './pages/NewsPage';
 import NewsDetailPage from './pages/NewsDetailPage';
 import AllCollectionsPage from './pages/AllCollectionsPage';
 import CheckoutPage from './pages/CheckoutPage';
+import WalletPage from './pages/WalletPage';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
+import { ToastProvider } from './context/ToastContext';
 import { AdminAuthProvider } from './admin/AdminAuthContext';
 import AdminLayout from './admin/AdminLayout';
 import AdminLoginPage from './admin/AdminLoginPage';
@@ -40,6 +42,7 @@ import CommunitiesAdminPage from './admin/pages/CommunitiesAdminPage';
 import PostsAdminPage from './admin/pages/PostsAdminPage';
 import CategoriesAdminPage from './admin/pages/CategoriesAdminPage';
 import SiteSettingsAdminPage from './admin/pages/SiteSettingsAdminPage';
+import CollectionsAdminPage from './admin/pages/CollectionsAdminPage';
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
@@ -55,15 +58,16 @@ function App() {
       <CartProvider>
         <WishlistProvider>
           <SiteSettingsProvider>
-            <MobileMenuProvider 
-              mobileMenuOpen={mobileMenuOpen} 
-              toggleMobileMenu={toggleMobileMenu}
-            >
-              <ModalProvider>
-                <Router>
-                  <div className="App">
-                    <ScrollToTop />
-                    <VisitorTracker />
+            <ToastProvider>
+              <MobileMenuProvider 
+                mobileMenuOpen={mobileMenuOpen} 
+                toggleMobileMenu={toggleMobileMenu}
+              >
+                <ModalProvider>
+                  <Router>
+                    <div className="App">
+                      <ScrollToTop />
+                      <VisitorTracker />
                 <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/community/:id" element={<CommunityPage />} />
@@ -71,6 +75,7 @@ function App() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/wallet" element={<WalletPage />} />
                 <Route path="/add-product" element={<AddProductPage />} />
                 <Route path="/global-market" element={<GlobalMarketPage />} />
                 <Route path="/all-collections" element={<AllCollectionsPage />} />
@@ -108,6 +113,7 @@ function App() {
                   <Route path="visitors" element={<VisitorsAdminPage />} />
                   <Route path="prices" element={<PricesAdminPage />} />
                   <Route path="products" element={<ProductsAdminPage />} />
+                  <Route path="collections" element={<CollectionsAdminPage />} />
                   <Route path="orders" element={<OrdersAdminPage />} />
                   <Route path="users" element={<UsersAdminPage />} />
                   <Route path="artisans" element={<ArtisansAdminPage />} />
@@ -123,9 +129,10 @@ function App() {
             </Router>
           </ModalProvider>
         </MobileMenuProvider>
-      </SiteSettingsProvider>
-    </WishlistProvider>
-    </CartProvider>
+      </ToastProvider>
+    </SiteSettingsProvider>
+  </WishlistProvider>
+</CartProvider>
   </AuthProvider>
 );
 }

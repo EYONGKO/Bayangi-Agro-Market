@@ -101,7 +101,8 @@ interface FeatureHighlightsProps {
 
 export default function FeatureHighlights({ features: featuresProp }: FeatureHighlightsProps = {}) {
   const { settings } = useSiteSettings();
-  const features = featuresProp ?? settings.features ?? DEFAULT_FEATURES;
+  // Temporarily force use of DEFAULT_FEATURES to bypass cached API data
+  const features = featuresProp ?? DEFAULT_FEATURES;
 
   return (
     <FeaturesWrapper>

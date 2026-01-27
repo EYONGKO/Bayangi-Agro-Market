@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { Box, Container, Typography } from '@mui/material';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
+import MovingHeroSection from '../components/MovingHeroSection';
 import { NEWS_CATEGORIES } from '../data/newsStore';
 import { listPosts, type PostRecord } from '../api/adminApi';
 import { theme } from '../theme/colors';
@@ -14,28 +15,6 @@ const PageWrapper = styled(Box)({
   paddingBottom: '80px',
 });
 
-const HeroSection = styled(Box)({
-  background: `linear-gradient(135deg, ${theme.colors.primary.main} 0%, ${theme.colors.primary.dark} 100%)`,
-  color: theme.colors.ui.white,
-  padding: '60px 20px',
-  marginBottom: '40px',
-});
-
-const HeroTitle = styled('h1')({
-  fontSize: 'clamp(32px, 5vw, 48px)',
-  fontWeight: 900,
-  marginBottom: '16px',
-  textAlign: 'center',
-});
-
-const HeroSubtitle = styled('p')({
-  fontSize: '18px',
-  opacity: 0.95,
-  textAlign: 'center',
-  maxWidth: '700px',
-  margin: '0 auto',
-  lineHeight: 1.6,
-});
 
 const ContentContainer = styled(Container)({
   width: '100%',
@@ -50,8 +29,28 @@ const FilterBar = styled(Box)({
   display: 'flex',
   gap: '12px',
   marginBottom: '40px',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
+  flexWrap: 'nowrap',
+  justifyContent: 'flex-start',
+  overflowX: 'auto',
+  padding: '0 20px',
+  '&::-webkit-scrollbar': {
+    height: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: '#f1f1f1',
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: '#c1c1c1',
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: '#a8a8a8',
+  },
+  '@media (max-width: 768px)': {
+    padding: '0 16px',
+    gap: '8px',
+  },
 });
 
 const FilterButton = styled('button')<{ active?: boolean }>(({ active }) => ({
@@ -64,9 +63,15 @@ const FilterButton = styled('button')<{ active?: boolean }>(({ active }) => ({
   fontSize: '14px',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
   '&:hover': {
     transform: 'translateY(-2px)',
     boxShadow: active ? `0 4px 12px ${theme.colors.primary.light}40%` : `0 2px 8px ${theme.colors.ui.shadow}`,
+  },
+  '@media (max-width: 768px)': {
+    padding: '8px 16px',
+    fontSize: '13px',
   },
 }));
 
@@ -219,12 +224,7 @@ export default function NewsPage() {
   return (
     <PageLayout>
       <PageWrapper>
-        <HeroSection>
-          <HeroTitle>Latest News & Stories</HeroTitle>
-          <HeroSubtitle>
-            Stay updated with the latest news, success stories, and insights from our global community of artisans and farmers.
-          </HeroSubtitle>
-        </HeroSection>
+        <MovingHeroSection heroType="news" />
 
         <ContentContainer maxWidth={false} disableGutters>
           <FilterBar>

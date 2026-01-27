@@ -13,9 +13,10 @@ type Props = {
 const GlobalMarketHeader = ({ title, cartCount, wishlistCount, onBack, onGoToCart, onGoToWishlist }: Props) => {
   return (
     <div
+      className="global-market-header"
       style={{
         background: 'white',
-        padding: '14px 18px',
+        padding: '10px 16px', // Reduced padding
         position: 'sticky',
         top: 0,
         zIndex: 1000,
@@ -37,28 +38,28 @@ const GlobalMarketHeader = ({ title, cartCount, wishlistCount, onBack, onGoToCar
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
-            borderRadius: '10px',
-            padding: '10px',
+            borderRadius: '8px', // Reduced border radius
+            padding: '8px', // Reduced padding
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}
           aria-label="Back"
         >
-          <ArrowLeft size={22} color={theme.colors.neutral[900]} />
+          <ArrowLeft size={20} color={theme.colors.neutral[900]} /> // Reduced icon size
         </button>
 
-        <div style={{ fontSize: '18px', fontWeight: 800, color: theme.colors.neutral[900] }}>{title}</div>
+        <div className="header-title" style={{ fontSize: '16px', fontWeight: 700, color: theme.colors.neutral[900] }}>{title}</div> // Reduced font size and weight
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}> // Reduced gap
           <button
             onClick={onGoToWishlist}
             style={{
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              borderRadius: '10px',
-              padding: '10px',
+              borderRadius: '8px', // Reduced border radius
+              padding: '8px', // Reduced padding
               position: 'relative',
               display: 'flex',
               alignItems: 'center',
@@ -66,21 +67,22 @@ const GlobalMarketHeader = ({ title, cartCount, wishlistCount, onBack, onGoToCar
             }}
             aria-label="Wishlist"
           >
-            <Heart size={22} color={theme.colors.neutral[900]} />
+            <Heart className="header-icon" size={20} color={theme.colors.primary.main} /> // Reduced icon size
             {wishlistCount > 0 && (
               <span
+                className="badge"
                 style={{
                   position: 'absolute',
-                  top: '4px',
-                  right: '4px',
+                  top: '3px', // Adjusted position
+                  right: '3px', // Adjusted position
                   background: theme.colors.primary.main,
                   color: 'white',
                   borderRadius: '999px',
-                  minWidth: '18px',
-                  height: '18px',
-                  padding: '0 6px',
-                  fontSize: '11px',
-                  fontWeight: 800,
+                  minWidth: '16px', // Reduced size
+                  height: '16px', // Reduced size
+                  padding: '0 4px', // Reduced padding
+                  fontSize: '10px', // Reduced font size
+                  fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -97,8 +99,8 @@ const GlobalMarketHeader = ({ title, cartCount, wishlistCount, onBack, onGoToCar
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              borderRadius: '10px',
-              padding: '10px',
+              borderRadius: '8px', // Reduced border radius
+              padding: '8px', // Reduced padding
               position: 'relative',
               display: 'flex',
               alignItems: 'center',
@@ -106,21 +108,22 @@ const GlobalMarketHeader = ({ title, cartCount, wishlistCount, onBack, onGoToCar
             }}
             aria-label="Cart"
           >
-            <ShoppingCart size={22} color={theme.colors.neutral[900]} />
+            <ShoppingCart className="header-icon" size={20} color={theme.colors.neutral[900]} /> // Reduced icon size
             {cartCount > 0 && (
               <span
+                className="badge"
                 style={{
                   position: 'absolute',
-                  top: '4px',
-                  right: '4px',
+                  top: '3px', // Adjusted position
+                  right: '3px', // Adjusted position
                   background: theme.colors.primary.light,
                   color: 'white',
                   borderRadius: '999px',
-                  minWidth: '18px',
-                  height: '18px',
-                  padding: '0 6px',
-                  fontSize: '11px',
-                  fontWeight: 800,
+                  minWidth: '16px', // Reduced size
+                  height: '16px', // Reduced size
+                  padding: '0 4px', // Reduced padding
+                  fontSize: '10px', // Reduced font size
+                  fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'

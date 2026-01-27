@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import { Box } from '@mui/material';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-import { DEFAULT_HERO_SLIDES } from '../config/siteSettingsTypes';
+import { DEFAULT_HERO_SLIDES, DEFAULT_HERO_BACKGROUND_IMAGES } from '../config/siteSettingsTypes';
 import { theme } from '../theme/colors';
 
 const SliderContainer = styled(Box)({
@@ -24,12 +24,6 @@ const SliderContainer = styled(Box)({
   },
 });
 
-// Moving background images for carousel
-const movingImages = [
-  '/hero-moving-bg.jpg',
-  '/hero-moving-bg-2.jpg',
-  '/hero-moving-bg-3.jpg'
-];
 
 const BackgroundImage = styled('img')<{ active: boolean }>(({ active }) => ({
   position: 'absolute',
@@ -317,16 +311,17 @@ const ContentContainer = styled(Box)({
 interface EcommerceHeroSliderProps {
   /** Override slides from settings (e.g. for preview). */
   slides?: typeof DEFAULT_HERO_SLIDES;
-  /** Override auto-slide interval from settings. */
-  autoSlideInterval?: number;
 }
 
-export default function EcommerceHeroSlider({ slides: slidesProp, autoSlideInterval: intervalProp }: EcommerceHeroSliderProps = {}) {
+export default function EcommerceHeroSlider({ slides: slidesProp }: EcommerceHeroSliderProps = {}) {
   const { settings } = useSiteSettings();
   const slides = slidesProp ?? settings.heroSlides ?? DEFAULT_HERO_SLIDES;
   const autoSlideInterval = 4000; // Changed to 4 seconds
   const [currentSlide, setCurrentSlide] = useState(0);
   const navigate = useNavigate();
+  
+  // Get background images from settings or use defaults
+  const movingImages = settings.heroBackgroundImages || DEFAULT_HERO_BACKGROUND_IMAGES;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -334,7 +329,7 @@ export default function EcommerceHeroSlider({ slides: slidesProp, autoSlideInter
     }, autoSlideInterval);
 
     return () => clearInterval(timer);
-  }, [autoSlideInterval]);
+  }, [autoSlideInterval, movingImages.length]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);

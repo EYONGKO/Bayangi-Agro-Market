@@ -9,7 +9,8 @@ import {
   DollarSign,
   Calendar,
   BarChart3,
-  Settings
+  Settings,
+  Wallet as WalletIcon
 } from 'lucide-react';
 import { theme } from '../theme/colors';
 import { getAllProducts } from '../data/productsStore';
@@ -267,6 +268,14 @@ export default function DashboardPage() {
                     style={{ color: theme.colors.primary.main }}
                   >
                     Add New Product
+                  </Link>
+                  <Link 
+                    to="/wallet" 
+                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-green-600 flex items-center gap-2"
+                    style={{ color: theme.colors.primary.main }}
+                  >
+                    <WalletIcon size={16} />
+                    My Wallet
                   </Link>
                   <Link 
                     to="/global-market" 
