@@ -35,7 +35,34 @@ export default function ProductsAdminPage() {
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
-  const categories = ['Crafts', 'Food', 'Textiles', 'Art', 'Fashion', 'Home & Garden', 'Beauty', 'Electronics', 'Others'];
+  const categories = [
+    'Agriculture',
+    'Community Success',
+    'Platform Updates',
+    'Marketplace',
+    'Resources',
+    'Art',
+    'Crafts',
+    'Food',
+    'Textiles',
+    'Electronics',
+    'Health & Wellness',
+    'Education',
+    'Technology',
+    'Fashion',
+    'Home & Garden',
+    'Sports & Fitness',
+    'Beauty & Personal Care',
+    'Toys & Games',
+    'Books & Media',
+    'Automotive',
+    'Business & Services',
+    'Entertainment',
+    'Travel & Tourism',
+    'Pet Supplies',
+    'Office Supplies',
+    'Industrial'
+  ];
   const communities = ['Kendem', 'Mamfe', 'Membe', 'Widikum', 'Fonjo', 'Moshie/Kekpoti'];
 
   const normalizeCommunityId = (value: string) => {
