@@ -75,14 +75,10 @@ export default function ProductsAdminPage() {
   };
 
   const handleImageUpload = async (files: FileList) => {
-    if (!token) {
-      setError('Authentication required for image upload');
-      return;
-    }
-
+    // Use the same approach as user upload - store base64 directly
     for (const file of Array.from(files)) {
       try {
-        console.log('Uploading image:', file.name, 'Size:', file.size);
+        console.log('Processing image:', file.name, 'Size:', file.size);
         
         const dataUrl = await new Promise<string>((resolve, reject) => {
           const r = new FileReader();
@@ -93,20 +89,13 @@ export default function ProductsAdminPage() {
         
         console.log('Image converted to data URL, length:', dataUrl.length);
         
-        const { url } = await uploadImage(token, { dataUrl, filename: file.name });
-        console.log('Upload successful, URL:', url);
-        
-        // Verify the URL is valid
-        if (!url || url.startsWith('data:')) {
-          throw new Error('Invalid upload response: ' + url);
-        }
-        
-        setForm((prev) => ({ ...prev, images: [...prev.images, url] }));
-        setImagePreview((prev) => [...prev, url]);
+        // Store base64 directly like user upload does
+        setForm((prev) => ({ ...prev, images: [...prev.images, dataUrl] }));
+        setImagePreview((prev) => [...prev, dataUrl]);
         
       } catch (e: any) {
-        console.error('Image upload failed:', e);
-        setError(`Failed to upload ${file.name}: ${e?.message || 'Unknown error'}`);
+        console.error('Image processing failed:', e);
+        setError(`Failed to process ${file.name}: ${e?.message || 'Unknown error'}`);
         break;
       }
     }
@@ -177,42 +166,21 @@ export default function ProductsAdminPage() {
 
       const communityId = form.community ? normalizeCommunityId(form.community) : 'global';
       
-      // Handle images properly - ensure we have valid URLs for mobile compatibility
-      // Use reliable image service that works on mobile as fallback ONLY when no images uploaded
-      const railwayBaseUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:8080' 
-        : 'https://bayangi-agro-market-backend-production.up.railway.app';
-      
-      // Use a reliable image service that works on mobile (not blocked by network restrictions)
-      const fallbackImageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(form.name || 'Product')}&size=800&background=f3f4f6&color=6b7280&bold=true`;
-      
-      let image = fallbackImageUrl; // Default fallback
+      // Handle images properly - use same approach as user upload
+      let image = '';
       let images: string[] = [];
       
       if (form.images.length > 0) {
-        // Filter out base64 data URLs and only keep proper URLs
-        const validUrls = form.images.filter(img => 
-          !img.startsWith('data:') && (img.startsWith('http') || img.startsWith('/'))
-        );
-        
-        if (validUrls.length > 0) {
-          // Use the first valid UPLOADED image, not the fallback
-          const firstImage = validUrls[0];
-          if (firstImage.startsWith('/')) {
-            // Convert relative URLs to absolute Railway URLs
-            image = `${railwayBaseUrl}${firstImage}`;
-          } else {
-            image = firstImage;
-          }
-          images = [image];
-          console.log('Using uploaded image:', image);
-        } else {
-          // If no valid URLs, use reliable fallback
-          console.warn('No valid image URLs found, using mobile-friendly fallback');
-          images = [fallbackImageUrl];
-        }
+        // Use base64 images directly like user upload does
+        image = form.images[0];
+        images = form.images;
+        console.log('Using base64 images like user upload:', image.slice(0, 50) + '...');
       } else {
+        // Use fallback avatar if no images
+        const fallbackImageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(form.name || 'Product')}&size=800&background=f3f4f6&color=6b7280&bold=true`;
+        image = fallbackImageUrl;
         images = [fallbackImageUrl];
+        console.log('Using fallback avatar');
       }
 
       const payload = {
