@@ -1,0 +1,13 @@
+{
+  "name": "local-roots",
+  "version": "1.0.0",
+  "description": "Local Roots Commerce - Community Marketplace",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Please run npm run dev from the local-roots-web directory'",
+    "build": "echo 'Please run npm run build from the local-roots-web directory'"
+  },
+  "keywords": ["commerce", "marketplace", "community"],
+  "author": "Local Roots",
+  "license": "MIT"
+}
