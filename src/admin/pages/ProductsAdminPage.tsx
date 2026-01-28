@@ -174,7 +174,12 @@ export default function ProductsAdminPage() {
       const communityId = form.community ? normalizeCommunityId(form.community) : 'global';
       
       // Handle images properly - ensure we have valid URLs for mobile compatibility
-      let image = `https://picsum.photos/seed/${form.name || 'product'}/800/600.jpg`;
+      // Use Railway backend for images to avoid network restrictions
+      const railwayBaseUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8080' 
+        : 'https://bayangi-agro-market-backend-production.up.railway.app';
+      
+      let image = `${railwayBaseUrl}/uploads/placeholder-${form.name || 'product'}.jpg`;
       let images: string[] = [];
       
       if (form.images.length > 0) {
@@ -188,14 +193,14 @@ export default function ProductsAdminPage() {
           const firstImage = validUrls[0];
           if (firstImage.startsWith('/')) {
             // Convert relative URLs to absolute Railway URLs
-            image = `https://bayangi-agro-market-backend-production.up.railway.app${firstImage}`;
+            image = `${railwayBaseUrl}${firstImage}`;
           } else {
             image = firstImage;
           }
           images = [image];
         } else {
-          // If no valid URLs, use a reliable placeholder with product name as seed
-          console.warn('No valid image URLs found, using placeholder');
+          // If no valid URLs, use Railway-hosted placeholder
+          console.warn('No valid image URLs found, using Railway placeholder');
           images = [image];
         }
       } else {
