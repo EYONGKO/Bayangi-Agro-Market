@@ -324,7 +324,7 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res, next) => {
   }
 });
 
-// User: create product (base64 image support)
+// User: create product (base64 image support) - v2.0.1
 router.post('/user', async (req, res, next) => {
   try {
     const { name, description, price, category, image, community, stock } = req.body;
