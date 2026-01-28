@@ -10,8 +10,10 @@ const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:8080' 
   : 'https://bayangi-agro-market-backend-production.up.railway.app';
 
-// Version to force Vercel deployment - 2025-01-28-13:45
-const APP_VERSION = '1.2.0';
+// Version to force Vercel deployment - 2025-01-28-13:55
+const APP_VERSION = '1.2.1';
+
+console.log('TopArtisansPage loaded - Version:', APP_VERSION);
 
 // API types
 interface ArtisanStats {
