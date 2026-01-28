@@ -74,25 +74,39 @@ export default function ProductsAdminPage() {
       .replace(/[^a-z0-9-]/g, '');
   };
 
-  const addImagesFromFiles = async (files: File[]) => {
-    const imageFiles = files.filter((f) => f.type.startsWith('image/'));
-    const capacity = Math.max(0, 5 - form.images.length);
-    const toAdd = imageFiles.slice(0, capacity);
-    if (imageFiles.length > capacity) setError('Maximum 5 images allowed. Some files were skipped.');
-    else setError(null);
-    for (const file of toAdd) {
+  const handleImageUpload = async (files: FileList) => {
+    if (!token) {
+      setError('Authentication required for image upload');
+      return;
+    }
+
+    for (const file of Array.from(files)) {
       try {
+        console.log('Uploading image:', file.name, 'Size:', file.size);
+        
         const dataUrl = await new Promise<string>((resolve, reject) => {
           const r = new FileReader();
           r.onload = () => resolve(String(r.result));
           r.onerror = () => reject(new Error('Failed to read file'));
           r.readAsDataURL(file);
         });
+        
+        console.log('Image converted to data URL, length:', dataUrl.length);
+        
         const { url } = await uploadImage(token, { dataUrl, filename: file.name });
+        console.log('Upload successful, URL:', url);
+        
+        // Verify the URL is valid
+        if (!url || url.startsWith('data:')) {
+          throw new Error('Invalid upload response: ' + url);
+        }
+        
         setForm((prev) => ({ ...prev, images: [...prev.images, url] }));
         setImagePreview((prev) => [...prev, url]);
+        
       } catch (e: any) {
-        setError(e?.message || 'Image upload failed');
+        console.error('Image upload failed:', e);
+        setError(`Failed to upload ${file.name}: ${e?.message || 'Unknown error'}`);
         break;
       }
     }
@@ -158,7 +172,35 @@ export default function ProductsAdminPage() {
       if (form.stock && !Number.isFinite(stockNum)) throw new Error('Stock must be a number');
 
       const communityId = form.community ? normalizeCommunityId(form.community) : 'global';
-      const image = form.images[0] || 'https://via.placeholder.com/800x600?text=Product';
+      
+      // Handle images properly - ensure we have valid URLs for mobile compatibility
+      let image = `https://picsum.photos/seed/${form.name || 'product'}/800/600.jpg`;
+      let images: string[] = [];
+      
+      if (form.images.length > 0) {
+        // Filter out base64 data URLs and only keep proper URLs
+        const validUrls = form.images.filter(img => 
+          !img.startsWith('data:') && (img.startsWith('http') || img.startsWith('/'))
+        );
+        
+        if (validUrls.length > 0) {
+          // Use the first valid image, but ensure it's a full URL for mobile
+          const firstImage = validUrls[0];
+          if (firstImage.startsWith('/')) {
+            // Convert relative URLs to absolute Railway URLs
+            image = `https://bayangi-agro-market-backend-production.up.railway.app${firstImage}`;
+          } else {
+            image = firstImage;
+          }
+          images = [image];
+        } else {
+          // If no valid URLs, use a reliable placeholder with product name as seed
+          console.warn('No valid image URLs found, using placeholder');
+          images = [image];
+        }
+      } else {
+        images = [image];
+      }
 
       const payload = {
         name: form.name,
@@ -169,7 +211,7 @@ export default function ProductsAdminPage() {
         stock: Number.isFinite(stockNum as any) ? (stockNum as number) : undefined,
         description: form.description || undefined,
         image,
-        images: form.images.length ? form.images : [image]
+        images
       };
 
       if (editing) {
