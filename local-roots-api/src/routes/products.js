@@ -62,6 +62,36 @@ router.post('/user', async (req, res, next) => {
   try {
     const body = req.body || {};
     
+    // Development mode: allow without authentication
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Development mode: allowing product creation without authentication');
+      
+      // Add user ID to product data
+      const productData = {
+        ...body,
+        userId: 'dev-user',
+        // Ensure required fields
+        name: body.name || 'Untitled Product',
+        price: Number(body.price) || 0,
+        category: body.category || 'Others',
+        community: body.community || 'global',
+        vendor: body.vendor || 'Local Vendor',
+        description: body.description || '',
+        image: body.image || '',
+        images: body.images || [],
+        stock: Number(body.stock) || 0,
+        rating: 0,
+        reviews: 0,
+        likes: 0
+      };
+      
+      const created = await Product.create(productData);
+      console.log(`✅ Development: Created product: ${productData.name}`);
+      res.status(201).json(created);
+      return;
+    }
+    
+    // Production: require authentication
     // Accept either Bearer token or X-User-ID for authentication
     let userId = null;
     
@@ -142,6 +172,39 @@ router.put('/user/:id', async (req, res, next) => {
     const { id } = req.params;
     const body = req.body || {};
     
+    // Development mode: allow without authentication
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Development mode: allowing product update without authentication');
+      
+      // Find the product first
+      const existingProduct = await Product.findById(id);
+      if (!existingProduct) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      
+      // Update product data with same logic as creation
+      const productData = {
+        name: body.name || existingProduct.name,
+        price: Number(body.price) || existingProduct.price,
+        category: body.category || existingProduct.category,
+        community: body.community || existingProduct.community,
+        vendor: body.vendor || existingProduct.vendor,
+        description: body.description || existingProduct.description,
+        image: body.image || existingProduct.image,
+        images: body.images || existingProduct.images,
+        stock: Number(body.stock) || existingProduct.stock,
+        rating: existingProduct.rating,
+        reviews: existingProduct.reviews,
+        likes: existingProduct.likes
+      };
+      
+      const updated = await Product.findByIdAndUpdate(id, productData, { new: true });
+      console.log(`✅ Development: Updated product: ${productData.name}`);
+      res.json(updated);
+      return;
+    }
+    
+    // Production: require authentication
     // Accept either Bearer token or X-User-ID for authentication
     let userId = null;
     
@@ -163,10 +226,7 @@ router.put('/user/:id', async (req, res, next) => {
       userId = req.headers['x-user-id'];
     }
     
-    // For admin updates, allow without strict user check in development
-    if (!userId && process.env.NODE_ENV !== 'production') {
-      console.warn('Allowing product update in development mode without user auth');
-    } else if (!userId) {
+    if (!userId) {
       return res.status(401).json({ error: 'User authentication required' });
     }
     

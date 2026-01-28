@@ -37,6 +37,153 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+// User: create community (for any authenticated user)
+router.post('/user', async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    
+    // Development mode: allow without authentication
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Development mode: allowing community creation without authentication');
+      
+      const name = String(body.name || '').trim();
+      if (!name) {
+        const err = new Error('Missing name');
+        err.status = 400;
+        throw err;
+      }
+
+      const created = await Community.create({
+        name,
+        slug: slugify(body.slug || name),
+        description: String(body.description || ''),
+        image: String(body.image || '')
+      });
+
+      console.log(`✅ Development: Created community: ${name}`);
+      res.status(201).json(created);
+      return;
+    }
+    
+    // Production: require authentication
+    // Accept either Bearer token or X-User-ID for authentication
+    let userId = null;
+    
+    // Try Bearer token first
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
+    if (token) {
+      try {
+        const { verifyJwt } = await import('../utils/jwt.js');
+        const decoded = verifyJwt(token);
+        userId = decoded.id || decoded._id;
+      } catch (e) {
+        // Token invalid, try X-User-ID fallback
+      }
+    }
+    
+    // Fallback to X-User-ID for development
+    if (!userId && req.headers['x-user-id']) {
+      userId = req.headers['x-user-id'];
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User authentication required' });
+    }
+    
+    const name = String(body.name || '').trim();
+    if (!name) {
+      const err = new Error('Missing name');
+      err.status = 400;
+      throw err;
+    }
+
+    const created = await Community.create({
+      name,
+      slug: slugify(body.slug || name),
+      description: String(body.description || ''),
+      image: String(body.image || '')
+    });
+
+    console.log(`✅ User ${userId} created community: ${name}`);
+    res.status(201).json(created);
+  } catch (e) {
+    next(e);
+  }
+});
+
+// User: update community (for any authenticated user)
+router.put('/user/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const body = req.body || {};
+    
+    // Development mode: allow without authentication
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Development mode: allowing community update without authentication');
+      
+      const patch = { ...body };
+      if (patch.name && !patch.slug) {
+        patch.slug = slugify(patch.name);
+      }
+
+      const updated = await Community.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
+      if (!updated) {
+        const err = new Error('Not found');
+        err.status = 404;
+        throw err;
+      }
+      
+      console.log(`✅ Development: Updated community: ${updated.name}`);
+      res.json(updated);
+      return;
+    }
+    
+    // Production: require authentication
+    // Accept either Bearer token or X-User-ID for authentication
+    let userId = null;
+    
+    // Try Bearer token first
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
+    if (token) {
+      try {
+        const { verifyJwt } = await import('../utils/jwt.js');
+        const decoded = verifyJwt(token);
+        userId = decoded.id || decoded._id;
+      } catch (e) {
+        // Token invalid, try X-User-ID fallback
+      }
+    }
+    
+    // Fallback to X-User-ID for development
+    if (!userId && req.headers['x-user-id']) {
+      userId = req.headers['x-user-id'];
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User authentication required' });
+    }
+    
+    const patch = { ...body };
+    if (patch.name && !patch.slug) {
+      patch.slug = slugify(patch.name);
+    }
+
+    const updated = await Community.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
+    if (!updated) {
+      const err = new Error('Not found');
+      err.status = 404;
+      throw err;
+    }
+    
+    console.log(`✅ User ${userId} updated community: ${updated.name}`);
+    res.json(updated);
+  } catch (e) {
+    next(e);
+  }
+});
+
 // Admin: create
 router.post('/', requireAuth, requireAdmin, async (req, res, next) => {
   try {
