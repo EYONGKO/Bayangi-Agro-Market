@@ -348,8 +348,8 @@ const TopArtisansPage = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Star size={16} className="text-yellow-500 fill-current" />
-                        <span className="font-bold text-gray-900">{artisan.stats.avgRating}</span>
-                        <span className="text-gray-500 text-sm">({artisan.stats.reviews})</span>
+                        <span className="font-bold text-gray-900">{artisan.stats?.avgRating || 0}</span>
+                        <span className="text-gray-500 text-sm">({artisan.stats?.reviews || 0})</span>
                       </div>
                     </div>
                     
@@ -362,13 +362,13 @@ const TopArtisansPage = () => {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <div className="text-lg font-bold text-green-600">
-                          {artisan.stats.totalProducts}
+                          {artisan.stats?.totalProducts || 0}
                         </div>
                         <div className="text-xs text-gray-500">Products</div>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <div className="text-lg font-bold text-blue-600">
-                          {artisan.stats.reviews}
+                          {artisan.stats?.reviews || 0}
                         </div>
                         <div className="text-xs text-gray-500">Reviews</div>
                       </div>
@@ -411,11 +411,11 @@ const TopArtisansPage = () => {
           <ArtisanProfileModal 
             artisan={selectedArtisan ? {
               ...selectedArtisan,
-              rating: selectedArtisan.stats.avgRating,
-              reviews: selectedArtisan.stats.reviews,
+              rating: selectedArtisan.stats?.avgRating || 0,
+              reviews: selectedArtisan.stats?.reviews || 0,
               verified: selectedArtisan.verifiedSeller,
               joinedDate: selectedArtisan.createdAt,
-              totalSales: selectedArtisan.stats.totalProducts * 1000 // Estimate sales
+              totalSales: (selectedArtisan.stats?.totalProducts || 0) * 1000 // Estimate sales
             } : null}
             open={profileModalOpen}
             onClose={handleCloseProfile}

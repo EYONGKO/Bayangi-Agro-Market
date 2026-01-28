@@ -12,7 +12,8 @@ interface ArtisanStats {
 }
 
 interface DatabaseArtisan {
-  id: string;
+  _id: string; // MongoDB uses _id
+  id?: string; // Optional fallback for compatibility
   name: string;
   email: string;
   phone: string;
@@ -23,7 +24,7 @@ interface DatabaseArtisan {
   avatar: string;
   bio: string;
   createdAt: string;
-  stats: ArtisanStats;
+  stats?: ArtisanStats; // Optional since it might not exist
 }
 
 const specialties = ['Vegetable Farming', 'Poultry Farming', 'Rice Cultivation', 'Fruit Farming', 'Livestock', 'Dairy Products', 'Honey Production', 'Fish Farming', 'Handicrafts'];
@@ -129,6 +130,9 @@ export default function ArtisansAdminPage() {
 
   const updateArtisan = async (id: string, artisanData: any) => {
     try {
+      console.log('Updating artisan with data:', artisanData);
+      console.log('API URL:', `${API_BASE}/api/users/${id}`);
+      
       const response = await fetch(`${API_BASE}/api/users/${id}`, {
         method: 'PUT',
         headers: {
@@ -138,18 +142,24 @@ export default function ArtisansAdminPage() {
         body: JSON.stringify(artisanData)
       });
       
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
       if (response.ok) {
         const updatedArtisan = await response.json();
-        setArtisans(artisans.map(a => a.id === id ? updatedArtisan : a));
+        console.log('Updated artisan response:', updatedArtisan);
+        setArtisans(artisans.map(a => a._id === id ? updatedArtisan : a));
         
         // Dispatch event to notify frontend Top Artisans page
         window.dispatchEvent(new CustomEvent('artisansUpdated', { 
-          detail: artisans.map(a => a.id === id ? updatedArtisan : a) 
+          detail: artisans.map(a => a._id === id ? updatedArtisan : a) 
         }));
         
         return updatedArtisan;
       } else {
-        throw new Error('Failed to update artisan');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Update failed:', errorData);
+        throw new Error(errorData.error || `Failed to update artisan (Status: ${response.status})`);
       }
     } catch (error) {
       console.error('Error updating artisan:', error);
@@ -167,7 +177,7 @@ export default function ArtisansAdminPage() {
       });
       
       if (response.ok) {
-        const updatedArtisans = artisans.filter(a => a.id !== id);
+        const updatedArtisans = artisans.filter(a => a._id !== id);
         setArtisans(updatedArtisans);
         
         // Dispatch event to notify frontend Top Artisans page
@@ -302,9 +312,13 @@ export default function ArtisansAdminPage() {
     setLoading(true);
     
     try {
+      console.log('Saving artisan data:', formData);
+      console.log('Editing artisan:', editingArtisan);
+      
       if (editingArtisan) {
         // Update existing artisan
-        await updateArtisan(editingArtisan.id, formData);
+        console.log('Updating existing artisan...');
+        await updateArtisan(editingArtisan._id, formData);
         console.log('Artisan updated successfully');
         
         // Force refresh of artisans from backend to get latest data
@@ -322,6 +336,7 @@ export default function ArtisansAdminPage() {
         }
       } else {
         // Create new artisan
+        console.log('Creating new artisan...');
         await createArtisan(formData);
         console.log('New artisan added successfully');
         
@@ -339,8 +354,9 @@ export default function ArtisansAdminPage() {
           console.log('Dispatched artisansUpdated event with new artisan data');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving artisan:', error);
+      alert(`Failed to save artisan: ${error.message}`);
     } finally {
       setLoading(false);
       setOpenDialog(false);
@@ -349,13 +365,13 @@ export default function ArtisansAdminPage() {
 
   const handleToggleVerified = async (id: string) => {
   try {
-    const artisan = artisans.find(a => a.id === id);
+    const artisan = artisans.find(a => a._id === id);
     if (artisan) {
       await updateArtisan(id, { verifiedSeller: !artisan.verifiedSeller });
       
       // Dispatch event to notify frontend Top Artisans page
       window.dispatchEvent(new CustomEvent('artisansUpdated', { 
-        detail: artisans.map(a => a.id === id ? { ...a, verifiedSeller: !a.verifiedSeller } : a) 
+        detail: artisans.map(a => a._id === id ? { ...a, verifiedSeller: !a.verifiedSeller } : a) 
       }));
     }
   } catch (error) {
@@ -395,7 +411,7 @@ export default function ArtisansAdminPage() {
           </TableHead>
           <TableBody>
             {artisans.map((artisan) => (
-              <TableRow key={artisan.id} hover>
+              <TableRow key={artisan._id} hover>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Avatar 
@@ -463,7 +479,7 @@ export default function ArtisansAdminPage() {
                       label={artisan.verifiedSeller ? 'Verified' : 'Pending'}
                       color={artisan.verifiedSeller ? 'success' : 'warning'}
                       size="small"
-                      onClick={() => handleToggleVerified(artisan.id)}
+                      onClick={() => handleToggleVerified(artisan._id)}
                       sx={{ cursor: 'pointer' }}
                     />
                   </Box>
@@ -479,7 +495,7 @@ export default function ArtisansAdminPage() {
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={() => handleDeleteArtisan(artisan.id)}
+                      onClick={() => handleDeleteArtisan(artisan._id)}
                       sx={{ color: '#ef4444' }}
                     >
                       <Trash2 fontSize={16} />
@@ -560,9 +576,14 @@ export default function ArtisansAdminPage() {
                 <Avatar
                   src={(() => {
                     if (!formData.avatar) return '';
+                    // Handle base64 images (new approach)
+                    if (formData.avatar.startsWith('data:')) return formData.avatar;
+                    // Handle HTTP URLs (old approach)
                     if (formData.avatar.startsWith('http')) return formData.avatar;
-                    if (formData.avatar.startsWith('/')) return `http://localhost:3001${formData.avatar}`;
-                    return `http://localhost:3001/uploads/${formData.avatar}`;
+                    // Handle relative paths (old approach)
+                    if (formData.avatar.startsWith('/')) return `${API_BASE}${formData.avatar}`;
+                    // Handle filenames (old approach)
+                    return `${API_BASE}/uploads/${formData.avatar}`;
                   })()}
                   sx={{ width: 80, height: 80 }}
                 >
