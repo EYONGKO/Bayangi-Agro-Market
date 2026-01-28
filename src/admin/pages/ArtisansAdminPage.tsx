@@ -1,17 +1,40 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Chip, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Edit, Trash2, Plus, Star, MapPin, Award, Image as ImageIcon, Upload } from 'lucide-react';
-import { getArtisans, saveArtisans, addArtisan, updateArtisan, deleteArtisan, toggleArtisanVerification } from '../../data/artisansStore';
-import { saveImage, getImageUrl } from '../../data/imageStorage';
-import type { Artisan } from '../../data/artisansStore';
+import { useAdminAuth } from '../AdminAuthContext';
+
+// Database artisan types
+interface ArtisanStats {
+  totalProducts: number;
+  avgRating: number;
+  totalLikes: number;
+  reviews: number;
+}
+
+interface DatabaseArtisan {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  community: string;
+  specialty: string;
+  role: string;
+  verifiedSeller: boolean;
+  avatar: string;
+  bio: string;
+  createdAt: string;
+  stats: ArtisanStats;
+}
 
 const communities = ['Kendem', 'Mamfe', 'Membe', 'Widikum', 'Fonjo', 'Moshie/Kekpoti', 'Bamenda', 'Buea', 'Douala', 'Yaoundé', 'Kumba', 'Limbe'];
 const specialties = ['Vegetable Farming', 'Poultry Farming', 'Rice Cultivation', 'Fruit Farming', 'Livestock', 'Dairy Products', 'Honey Production', 'Fish Farming'];
 
 export default function ArtisansAdminPage() {
-  const [artisans, setArtisans] = useState<Artisan[]>([]);
+  const { token } = useAdminAuth();
+  const [artisans, setArtisans] = useState<DatabaseArtisan[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const [editingArtisan, setEditingArtisan] = useState<Artisan | null>(null);
+  const [editingArtisan, setEditingArtisan] = useState<DatabaseArtisan | null>(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,16 +42,103 @@ export default function ArtisansAdminPage() {
     community: '',
     specialty: '',
     bio: '',
-    rating: 4.0,
-    verified: false,
+    role: 'seller',
+    verifiedSeller: false,
     avatar: '',
     avatarFile: null as File | null
   });
 
-  // Load artisans from store on component mount
+  // Load artisans from database API on component mount
   useEffect(() => {
-    setArtisans(getArtisans());
+    const fetchArtisans = async () => {
+      try {
+        const response = await fetch('https://bayangi-agro-market-backend-production.up.railway.app/api/artisans');
+        if (response.ok) {
+          const data = await response.json();
+          setArtisans(data);
+        } else {
+          console.error('Failed to fetch artisans:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching artisans:', error);
+      }
+    };
+
+    fetchArtisans();
   }, []);
+
+  // Database API functions
+  const createArtisan = async (artisanData: any) => {
+    try {
+      const response = await fetch('https://bayangi-agro-market-backend-production.up.railway.app/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...artisanData,
+          password: 'defaultPassword123', // Default password for artisans
+          role: 'seller'
+        })
+      });
+      
+      if (response.ok) {
+        const newArtisan = await response.json();
+        setArtisans([...artisans, newArtisan]);
+        return newArtisan;
+      } else {
+        throw new Error('Failed to create artisan');
+      }
+    } catch (error) {
+      console.error('Error creating artisan:', error);
+      throw error;
+    }
+  };
+
+  const updateArtisan = async (id: string, artisanData: any) => {
+    try {
+      const response = await fetch(`https://bayangi-agro-market-backend-production.up.railway.app/api/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(artisanData)
+      });
+      
+      if (response.ok) {
+        const updatedArtisan = await response.json();
+        setArtisans(artisans.map(a => a.id === id ? updatedArtisan : a));
+        return updatedArtisan;
+      } else {
+        throw new Error('Failed to update artisan');
+      }
+    } catch (error) {
+      console.error('Error updating artisan:', error);
+      throw error;
+    }
+  };
+
+  const deleteArtisan = async (id: string) => {
+    try {
+      const response = await fetch(`https://bayangi-agro-market-backend-production.up.railway.app/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        setArtisans(artisans.filter(a => a.id !== id));
+      } else {
+        throw new Error('Failed to delete artisan');
+      }
+    } catch (error) {
+      console.error('Error deleting artisan:', error);
+      throw error;
+    }
+  };
 
   // Listen for artisans updates from other components
   useEffect(() => {
@@ -52,15 +162,15 @@ export default function ArtisansAdminPage() {
       community: '',
       specialty: '',
       bio: '',
-      rating: 4.0,
-      verified: false,
+      role: 'seller',
+      verifiedSeller: false,
       avatar: '',
       avatarFile: null
     });
     setOpenDialog(true);
   };
 
-  const handleEditArtisan = (artisan: Artisan) => {
+  const handleEditArtisan = (artisan: DatabaseArtisan) => {
     setEditingArtisan(artisan);
     setFormData({
       name: artisan.name,
@@ -69,19 +179,20 @@ export default function ArtisansAdminPage() {
       community: artisan.community,
       specialty: artisan.specialty,
       bio: artisan.bio,
-      rating: artisan.rating,
-      verified: artisan.verified,
+      role: artisan.role,
+      verifiedSeller: artisan.verifiedSeller,
       avatar: artisan.avatar,
-      avatarFile: artisan.avatarFile || null
+      avatarFile: null // Reset file input
     });
     setOpenDialog(true);
   };
 
-  const handleDeleteArtisan = (id: string) => {
+  const handleDeleteArtisan = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this artisan?')) {
-      const success = deleteArtisan(id);
-      if (success) {
-        setArtisans(getArtisans());
+      try {
+        await deleteArtisan(id);
+      } catch (error) {
+        console.error('Error deleting artisan:', error);
       }
     }
   };
@@ -129,55 +240,37 @@ export default function ArtisansAdminPage() {
     }
   };
 
-  const handleRemoveImage = () => {
-    // Clean up the image ID if it exists
-    if (formData.avatar) {
-      console.log('Removing image:', formData.avatar);
-    }
-    setFormData({ 
-      ...formData, 
-      avatar: '',
-      avatarFile: null 
-    });
-  };
-
-  const handleSaveArtisan = () => {
-    console.log('Saving artisan data:', formData);
-    console.log('Avatar ID:', formData.avatar);
-    console.log('Avatar File:', formData.avatarFile?.name);
+  const handleSaveArtisan = async () => {
+    setLoading(true);
     
-    if (editingArtisan) {
-      // Update existing artisan
-      console.log('Updating existing artisan with ID:', editingArtisan.id);
-      const updatedArtisan = updateArtisan(editingArtisan.id, formData);
-      if (updatedArtisan) {
+    try {
+      if (editingArtisan) {
+        // Update existing artisan
+        await updateArtisan(editingArtisan.id, formData);
         console.log('Artisan updated successfully');
-        setArtisans(getArtisans());
       } else {
-        console.error('Failed to update artisan');
+        // Create new artisan
+        await createArtisan(formData);
+        console.log('New artisan added successfully');
       }
-    } else {
-      // Add new artisan
-      console.log('Adding new artisan');
-      const newArtisan = addArtisan(formData);
-      if (newArtisan) {
-        console.log('New artisan added successfully with ID:', newArtisan.id);
-        setArtisans(getArtisans());
-      } else {
-        console.error('Failed to add new artisan');
-      }
+    } catch (error) {
+      console.error('Error saving artisan:', error);
+    } finally {
+      setLoading(false);
+      setOpenDialog(false);
     }
-    
-    // No need to clean up blob URLs since we're using image IDs
-    console.log('Artisan saved successfully');
-    setOpenDialog(false);
-    console.log('Dialog closed');
   };
 
-  const handleToggleVerified = (id: string) => {
-    toggleArtisanVerification(id);
-    setArtisans(getArtisans());
-  };
+  const handleToggleVerified = async (id: string) => {
+  try {
+    const artisan = artisans.find(a => a.id === id);
+    if (artisan) {
+      await updateArtisan(id, { verifiedSeller: !artisan.verifiedSeller });
+    }
+  } catch (error) {
+    console.error('Error toggling verification:', error);
+  }
+};
 
   return (
     <Box sx={{ p: 3 }}>
@@ -214,7 +307,7 @@ export default function ArtisansAdminPage() {
               <TableRow key={artisan.id} hover>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar src={artisan.avatar ? getImageUrl(artisan.avatar) : ''} sx={{ width: 40, height: 40 }}>
+                    <Avatar src={artisan.avatar} sx={{ width: 40, height: 40 }}>
                       {artisan.name.charAt(0)}
                     </Avatar>
                     <Box>
@@ -222,7 +315,7 @@ export default function ArtisansAdminPage() {
                         {artisan.name}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Joined {artisan.joinedDate}
+                        Joined {new Date(artisan.createdAt).toLocaleDateString()}
                       </Typography>
                     </Box>
                   </Box>
@@ -248,23 +341,23 @@ export default function ArtisansAdminPage() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Star style={{ fontSize: 16, color: '#fbbf24' }} />
                     <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                      {artisan.rating}
+                      {artisan.stats.avgRating}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      ({artisan.reviews})
+                      ({artisan.stats.reviews})
                     </Typography>
                   </Box>
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    {artisan.totalSales.toLocaleString()} CFA
+                    {artisan.stats.totalProducts} Products
                   </Typography>
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Chip
-                      label={artisan.verified ? 'Verified' : 'Pending'}
-                      color={artisan.verified ? 'success' : 'warning'}
+                      label={artisan.verifiedSeller ? 'Verified' : 'Pending'}
+                      color={artisan.verifiedSeller ? 'success' : 'warning'}
                       size="small"
                       onClick={() => handleToggleVerified(artisan.id)}
                       sx={{ cursor: 'pointer' }}
@@ -357,19 +450,11 @@ export default function ArtisansAdminPage() {
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             />
-            <TextField
-              label="Rating"
-              type="number"
-              inputProps={{ min: 0, max: 5, step: 0.1 }}
-              fullWidth
-              value={formData.rating}
-              onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) })}
-            />
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Artisan Image</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar
-                  src={formData.avatar ? getImageUrl(formData.avatar) : ''}
+                  src={formData.avatar}
                   sx={{ width: 80, height: 80 }}
                 >
                   {formData.name.charAt(0) || 'A'}
