@@ -136,7 +136,72 @@ router.post('/user', async (req, res, next) => {
   }
 });
 
-// Admin: create
+// User: update product (for any authenticated user)
+router.put('/user/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const body = req.body || {};
+    
+    // Accept either Bearer token or X-User-ID for authentication
+    let userId = null;
+    
+    // Try Bearer token first
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
+    if (token) {
+      try {
+        const { verifyJwt } = await import('../utils/jwt.js');
+        const decoded = verifyJwt(token);
+        userId = decoded.id || decoded._id;
+      } catch (e) {
+        // Token invalid, try X-User-ID fallback
+      }
+    }
+    
+    // Fallback to X-User-ID for development
+    if (!userId && req.headers['x-user-id']) {
+      userId = req.headers['x-user-id'];
+    }
+    
+    // For admin updates, allow without strict user check in development
+    if (!userId && process.env.NODE_ENV !== 'production') {
+      console.warn('Allowing product update in development mode without user auth');
+    } else if (!userId) {
+      return res.status(401).json({ error: 'User authentication required' });
+    }
+    
+    // Find the product first
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    // Update product data with same logic as creation
+    const productData = {
+      name: body.name || existingProduct.name,
+      price: Number(body.price) || existingProduct.price,
+      category: body.category || existingProduct.category,
+      community: body.community || existingProduct.community,
+      vendor: body.vendor || existingProduct.vendor,
+      description: body.description || existingProduct.description,
+      image: body.image || existingProduct.image,
+      images: body.images || existingProduct.images,
+      stock: Number(body.stock) || existingProduct.stock,
+      rating: existingProduct.rating,
+      reviews: existingProduct.reviews,
+      likes: existingProduct.likes
+    };
+    
+    const updated = await Product.findByIdAndUpdate(id, productData, { new: true });
+    console.log(`✅ Updated product: ${productData.name}`);
+    res.json(updated);
+  } catch (e) {
+    console.error('Error updating user product:', e);
+    next(e);
+  }
+});
+
+// Admin: create product (admin only)
 router.post('/', requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const body = req.body || {};
