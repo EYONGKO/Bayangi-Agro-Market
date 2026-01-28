@@ -25,9 +25,14 @@ router.put('/:id', async (req, res, next) => {
       console.warn('Development mode: allowing user update without authentication');
       
       console.log('Updating user with data:', { id, updateData }); // Debug log
+      console.log('UpdateData keys:', Object.keys(updateData));
+      console.log('UpdateData values:', Object.values(updateData));
       
       // Remove sensitive fields that shouldn't be updated directly
       const { passwordHash, _id, createdAt, ...safeUpdateData } = updateData;
+      
+      console.log('SafeUpdateData keys:', Object.keys(safeUpdateData));
+      console.log('SafeUpdateData values:', Object.values(safeUpdateData));
       
       const updatedUser = await User.findByIdAndUpdate(
         id, 
