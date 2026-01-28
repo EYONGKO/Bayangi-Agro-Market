@@ -57,6 +57,85 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+// User: create product (for any authenticated user)
+router.post('/user', async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    
+    // Accept either Bearer token or X-User-ID for authentication
+    let userId = null;
+    
+    // Try Bearer token first
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
+    if (token) {
+      try {
+        const { verifyJwt } = await import('../utils/jwt.js');
+        const decoded = verifyJwt(token);
+        userId = decoded.id || decoded._id;
+      } catch (e) {
+        // Token invalid, try X-User-ID fallback
+      }
+    }
+    
+    // Fallback to X-User-ID for development
+    if (!userId && req.headers['x-user-id']) {
+      userId = req.headers['x-user-id'];
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User authentication required' });
+    }
+    
+    // Add user ID to product data
+    const productData = {
+      ...body,
+      userId: userId,
+      // Ensure required fields
+      name: body.name || 'Untitled Product',
+      price: Number(body.price) || 0,
+      category: body.category || 'Others',
+      community: body.community || 'global',
+      vendor: body.vendor || 'Local Vendor',
+      description: body.description || '',
+      image: body.image || '',
+      images: body.images || [],
+      stock: Number(body.stock) || 0,
+      rating: 0,
+      reviews: 0,
+      likes: 0
+    };
+    
+    // Check for duplicate product based on name, vendor, and community
+    const existingProduct = await Product.findOne({
+      name: productData.name,
+      vendor: productData.vendor,
+      community: productData.community
+    });
+    
+    if (existingProduct) {
+      return res.status(409).json({ 
+        error: 'A product with this name already exists for this vendor in this community',
+        duplicate: true 
+      });
+    }
+    
+    const created = await Product.create(productData);
+    console.log(`✅ User ${userId} created product: ${productData.name}`);
+    res.status(201).json(created);
+  } catch (e) {
+    // Handle MongoDB duplicate key error
+    if (e.code === 11000 && e.keyPattern && e.keyPattern.name && e.keyPattern.vendor && e.keyPattern.community) {
+      return res.status(409).json({ 
+        error: 'A product with this name already exists for this vendor in this community',
+        duplicate: true 
+      });
+    }
+    console.error('Error creating user product:', e);
+    next(e);
+  }
+});
+
 // Admin: create
 router.post('/', requireAuth, requireAdmin, async (req, res, next) => {
   try {
