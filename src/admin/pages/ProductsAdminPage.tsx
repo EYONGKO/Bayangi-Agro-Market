@@ -112,6 +112,10 @@ export default function ProductsAdminPage() {
     }
   };
 
+  const addImagesFromFiles = async (files: File[]) => {
+    await handleImageUpload(files as unknown as FileList);
+  };
+
   const removeImage = (index: number) => {
     setImagePreview((prev) => prev.filter((_, i) => i !== index));
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
@@ -174,12 +178,15 @@ export default function ProductsAdminPage() {
       const communityId = form.community ? normalizeCommunityId(form.community) : 'global';
       
       // Handle images properly - ensure we have valid URLs for mobile compatibility
-      // Use Railway backend for images to avoid network restrictions
+      // Use reliable image service that works on mobile as fallback ONLY when no images uploaded
       const railwayBaseUrl = window.location.hostname === 'localhost' 
         ? 'http://localhost:8080' 
         : 'https://bayangi-agro-market-backend-production.up.railway.app';
       
-      let image = `${railwayBaseUrl}/uploads/placeholder-${form.name || 'product'}.jpg`;
+      // Use a reliable image service that works on mobile (not blocked by network restrictions)
+      const fallbackImageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(form.name || 'Product')}&size=800&background=f3f4f6&color=6b7280&bold=true`;
+      
+      let image = fallbackImageUrl; // Default fallback
       let images: string[] = [];
       
       if (form.images.length > 0) {
@@ -189,7 +196,7 @@ export default function ProductsAdminPage() {
         );
         
         if (validUrls.length > 0) {
-          // Use the first valid image, but ensure it's a full URL for mobile
+          // Use the first valid UPLOADED image, not the fallback
           const firstImage = validUrls[0];
           if (firstImage.startsWith('/')) {
             // Convert relative URLs to absolute Railway URLs
@@ -198,13 +205,14 @@ export default function ProductsAdminPage() {
             image = firstImage;
           }
           images = [image];
+          console.log('Using uploaded image:', image);
         } else {
-          // If no valid URLs, use Railway-hosted placeholder
-          console.warn('No valid image URLs found, using Railway placeholder');
-          images = [image];
+          // If no valid URLs, use reliable fallback
+          console.warn('No valid image URLs found, using mobile-friendly fallback');
+          images = [fallbackImageUrl];
         }
       } else {
-        images = [image];
+        images = [fallbackImageUrl];
       }
 
       const payload = {
