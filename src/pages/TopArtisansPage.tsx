@@ -10,6 +10,9 @@ const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:8080' 
   : 'https://bayangi-agro-market-backend-production.up.railway.app';
 
+// Version to force Vercel deployment - 2025-01-28-13:45
+const APP_VERSION = '1.2.0';
+
 // API types
 interface ArtisanStats {
   totalProducts: number;
@@ -48,14 +51,22 @@ const TopArtisansPage = () => {
   useEffect(() => {
     const fetchArtisans = async () => {
       try {
+        console.log('=== PRODUCTION DEBUG ===');
+        console.log('Current hostname:', window.location.hostname);
+        console.log('API_BASE being used:', API_BASE);
+        console.log('Full API URL:', `${API_BASE}/api/artisans`);
         console.log('Fetching artisans from:', `${API_BASE}/api/artisans`);
         
         const response = await fetch(`${API_BASE}/api/artisans`);
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
         if (response.ok) {
           const data = await response.json();
           console.log('Artisans data received:', data);
           console.log('Number of artisans:', data.length);
-          console.log('First artisan data:', data[0]);
+          console.log('First artisan:', data[0]);
+          console.log('=== END DEBUG ===');
           setArtisans(data);
         } else {
           console.error('Failed to fetch artisans:', response.statusText);
@@ -63,6 +74,7 @@ const TopArtisansPage = () => {
         }
       } catch (error) {
         console.error('Error fetching artisans:', error);
+        console.error('Network error - check CORS and API connectivity');
       }
     };
 
