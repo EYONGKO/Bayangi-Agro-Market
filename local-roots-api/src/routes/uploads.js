@@ -58,7 +58,12 @@ router.post('/image', requireAuth, requireAdmin, async (req, res, next) => {
     const outPath = path.join(uploadsDir, finalName);
     await fs.writeFile(outPath, buf);
 
-    res.json({ url: `/uploads/${finalName}` });
+    // Return absolute URL for mobile compatibility
+    const baseUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` 
+      : `http://localhost:${process.env.PORT || 8080}`;
+    
+    res.json({ url: `${baseUrl}/uploads/${finalName}` });
   } catch (e) {
     next(e);
   }
