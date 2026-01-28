@@ -318,6 +318,9 @@ export default function ArtisansAdminPage() {
       if (editingArtisan) {
         // Update existing artisan
         console.log('Updating existing artisan...');
+        console.log('Form data being sent:', formData);
+        console.log('Form data keys:', Object.keys(formData));
+        console.log('Form data values:', Object.values(formData));
         await updateArtisan(editingArtisan._id, formData);
         console.log('Artisan updated successfully');
         
