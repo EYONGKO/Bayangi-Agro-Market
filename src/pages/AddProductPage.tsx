@@ -159,12 +159,6 @@ const AddProductPage = () => {
         return;
       }
 
-      if (currentUser.role === 'buyer') {
-        alert('Only sellers can add products. Please contact admin to upgrade your account to seller status.');
-        navigate('/dashboard');
-        return;
-      }
-
       const communityId = normalizeCommunityId(formData.community);
       const price = Number(formData.price);
       const stock = formData.stock ? Number(formData.stock) : undefined;
